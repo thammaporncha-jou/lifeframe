@@ -267,12 +267,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="card-label">บันทึกกิจกรรม</div>
       <div class="section-title">ทำอะไรอยู่?</div>
       <div class="section-sub">พิมพ์สั้นๆ หรือกด tag • ย้อนเวลาได้</div>
-      <div class="log-area" style="flex-wrap:wrap;gap:8px">
-        <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน..." onkeydown="if(event.key==='Enter')addLog()" style="flex:1;min-width:160px">
-        <div style="display:flex;gap:6px;align-items:center">
-          <input type="time" id="log-time-input" class="log-input" style="width:100px;flex:none;font-family:'Space Mono',monospace;font-size:13px">
-          <button class="log-btn" onclick="addLog()">+ LOG</button>
-        </div>
+      <div class="log-area" style="margin-top:12px">
+        <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน..." onkeydown="if(event.key==='Enter')startLog()">
+        <button class="log-btn" onclick="startLog()">▶ play</button>
       </div>
 
       <div class="all-tags" id="all-tags">
@@ -524,18 +521,55 @@ function quickLogFromSidebar(t){document.getElementById('log-input').value=t;set
 // ── LOG ──
 
 function quickLog(t){document.getElementById('log-input').value=t;addLog();}
-function addLog(){
-  const inp=document.getElementById('log-input');const txt=inp.value.trim();if(!txt)return;
-  todayLogs.push({time:getTime(),text:txt,id:Date.now()});inp.value='';inp.focus();renderToday();
+function startLog(){
+  const inp=document.getElementById('log-input');
+  const txt=inp.value.trim(); if(!txt) return;
+  const active=todayLogs.find(l=>l.active);
+  if(active){
+    active.active=false;
+    todayLogs.push({time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true});
+  }
+  todayLogs.push({time:getTime(),text:txt,id:Date.now(),active:true});
+  todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+  inp.value=''; inp.focus(); renderToday();
+}
+function addLog(){startLog();}
+function stopCurrentLog(){
+  const active=todayLogs.find(l=>l.active); if(!active) return;
+  active.active=false;
+  todayLogs.push({time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true});
+  todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+  const card=document.getElementById('active-log-card');
+  if(card) card.style.display='none';
+  renderToday();
 }
 function deleteLog(id){todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
 function renderToday(){
-  const card=document.getElementById('today-card');
-  if(!todayLogs.length){card.style.display='none';return;}
-  card.style.display='block';
-  document.getElementById('timeline').innerHTML=todayLogs.slice(-10).reverse().map(l=>
-    `<div class="log-item"><span class="log-time">${l.time}</span><span class="log-text">${l.text}</span><span class="log-cat">${getCat(l.text)}</span><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`
-  ).join('');
+  const tl=document.getElementById('timeline'); if(!tl) return;
+  if(!todayLogs.length){
+    tl.innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:Space Mono,monospace">— ยังไม่มี log วันนี้ —</div>';
+    return;
+  }
+  tl.innerHTML = todayLogs.slice().reverse().map((l,i)=>{
+    const isLatest = i===0;
+    const cat = !l.isStop&&typeof getCategoryForText!=='undefined' ? getCategoryForText(l.text) : null;
+    const catName = cat ? cat.name : '';
+    if(l.isStop){
+      return '<div class="log-item">'
+        +'<span class="log-time" style="color:var(--muted)">'+l.time+'</span>'
+        +'<span class="log-text" style="color:var(--muted)">'+l.text+'</span>'
+        +'<button class="log-del" onclick="deleteLog('+l.id+')">✕</button>'
+        +'</div>';
+    }
+    return '<div class="log-item">'
+      +'<span class="log-time" style="'+(l.active?'color:var(--accent)':'')+'">'+l.time+'</span>'
+      +'<span class="log-text">'+l.text+'</span>'
+      +(catName?'<span class="log-cat">'+catName+'</span>':'')
+      +(l.active?'<span style="font-size:9px;color:var(--accent);font-family:Space Mono,monospace">●</span>':'')
+      +(l.active&&isLatest?'<button onclick="stopCurrentLog()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:10px;cursor:pointer;white-space:nowrap">■ stop</button>':'')
+      +'<button class="log-del" onclick="deleteLog('+l.id+')">✕</button>'
+      +'</div>';
+  }).join('');
 }
 
 // ── PLANNER ──
@@ -943,7 +977,7 @@ function autoLogStop() {
   const todo = todos.find(t => t.id === activeTaskId);
   if (!todo) return;
   const stopTime = getTime();
-  todayLogs.push({time: stopTime, text: `หยุด: ${todo.title}`, id: Date.now(), retro: false});
+  todayLogs.push({time: stopTime, text: `หยุด — ${todo.title}`, id: Date.now(), isStop: true});
   todayLogs.sort((a,b) => a.time.localeCompare(b.time));
   renderToday();
 }
