@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LIFEFRAME">
 <link rel="manifest" href="/manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 :root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
@@ -198,6 +199,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </head>
 <body>
 
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none;position:fixed;inset:0;z-index:200;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:16px">
+  <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);letter-spacing:3px;margin-bottom:8px">LIFEFRAME</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px">
+    <input id="auth-email" class="modal-input" type="email" placeholder="อีเมล" style="width:100%;box-sizing:border-box">
+    <input id="auth-pass" class="modal-input" type="password" placeholder="รหัสผ่าน" style="width:100%;box-sizing:border-box">
+    <div id="auth-error" style="font-size:11px;min-height:16px;text-align:center"></div>
+    <button onclick="signIn()" class="log-btn" style="width:100%;justify-content:center">เข้าสู่ระบบ</button>
+    <button onclick="signUp()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer">สมัครสมาชิก</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div id="sidebar">
   <div class="sidebar-header">
@@ -527,29 +542,35 @@ function quickLogFromSidebar(t){document.getElementById('log-input').value=t;set
 // ── LOG ──
 
 function quickLog(t){document.getElementById('log-input').value=t;addLog();}
-function startLog(){
+async function startLog(){
   const inp=document.getElementById('log-input');
   const txt=inp.value.trim(); if(!txt) return;
   const active=todayLogs.find(l=>l.active);
   if(active){
     active.active=false;
-    todayLogs.push({time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true});
+    const stopEntry={time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true};
+    todayLogs.push(stopEntry);
+    await saveLog(stopEntry);
   }
-  todayLogs.push({time:getTime(),text:txt,id:Date.now(),active:true});
+  const newLog={time:getTime(),text:txt,id:Date.now(),active:true};
+  todayLogs.push(newLog);
+  await saveLog(newLog);
   todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
   inp.value=''; inp.focus(); renderToday();
 }
 function addLog(){startLog();}
-function stopCurrentLog(){
+async function stopCurrentLog(){
   const active=todayLogs.find(l=>l.active); if(!active) return;
   active.active=false;
-  todayLogs.push({time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true});
+  const stopEntry={time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true};
+  todayLogs.push(stopEntry);
+  await saveLog(stopEntry);
   todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
   const card=document.getElementById('active-log-card');
   if(card) card.style.display='none';
   renderToday();
 }
-function deleteLog(id){todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
+async function deleteLog(id){await deleteFromDB('logs',id);todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
 function renderToday(){
   const tl=document.getElementById('timeline'); if(!tl) return;
   if(!todayLogs.length){
@@ -648,7 +669,7 @@ function renderPlanner(){
 
 function toggleStep(id,si){const t=todos.find(t=>t.id===id);if(t){t.steps[si].done=!t.steps[si].done;renderPlanner();}}
 function moveCard(id,date){const t=todos.find(t=>t.id===id);if(t){t.date=date;renderPlanner();}}
-function deleteTodo(id){todos=todos.filter(t=>t.id!==id);renderPlanner();}
+async function deleteTodo(id){await deleteFromDB('todos',id);todos=todos.filter(t=>t.id!==id);renderPlanner();}
 
 // ── DRAG ──
 function onRowDragStart(e,id){
@@ -1160,5 +1181,6 @@ renderToday();
 // Refresh gap alerts every minute
 
 </script>
+</div><!-- /app -->
 </body>
 </html>
