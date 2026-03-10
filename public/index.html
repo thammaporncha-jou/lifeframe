@@ -553,7 +553,7 @@ function deleteLog(id){todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
 function renderToday(){
   const tl=document.getElementById('timeline'); if(!tl) return;
   if(!todayLogs.length){
-    tl.innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:'Space Mono',monospace">— ยังไม่มี log วันนี้ —</div>';
+    tl.innerHTML="<div style='color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:Space Mono,monospace'>— ยังไม่มี log วันนี้ —</div>";
     return;
   }
   tl.innerHTML = todayLogs.slice().reverse().map((l,i)=>{
@@ -571,7 +571,7 @@ function renderToday(){
       +'<span class="log-time" style="'+(l.active?'color:var(--accent)':'')+'">'+l.time+'</span>'
       +'<span class="log-text">'+l.text+'</span>'
       +(catName?'<span class="log-cat">'+catName+'</span>':'')
-      +(l.active?'<span style="font-size:9px;color:var(--accent);font-family:'Space Mono',monospace">●</span>':'')
+      +(l.active?"<span style='font-size:9px;color:var(--accent)'>●</span>":"")
       +(l.active&&isLatest?'<button onclick="stopCurrentLog()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:10px;cursor:pointer;white-space:nowrap">■ stop</button>':'')
       +'<button class="log-del" onclick="deleteLog('+l.id+')">✕</button>'
       +'</div>';
@@ -934,7 +934,7 @@ function renderHoursSummary(year, month){
     .filter(e=>e.mins>0)
     .sort((a,b)=>b.mins-a.mins);
   if(!entries.length){
-    el.innerHTML='<div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">— ยังไม่มีข้อมูล —</div>';
+    el.innerHTML="<div style='font-size:12px;color:var(--muted)'>— ยังไม่มีข้อมูล —</div>";
     return;
   }
   const maxMins=entries[0].mins;
@@ -1091,7 +1091,7 @@ let qtNextId = 3;
 function renderQuickTasks(){
   const el = document.getElementById('quick-tasks-sidebar'); if(!el) return;
   if(!quickTasks.length){
-    el.innerHTML='<div style="font-size:11px;color:var(--muted);font-family:\'Space Mono\',monospace">— ยังไม่มี shortcut —</div>';
+    el.innerHTML='<div style="font-size:11px;color:var(--muted)">— ยังไม่มี shortcut —</div>';
     return;
   }
   el.innerHTML = quickTasks.map(qt=>`
