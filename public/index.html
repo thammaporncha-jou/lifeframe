@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIFEFRAME v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2e;
+    --accent: #00ff88;
+    --accent3: #7c3aed;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --danger: #ff4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 4px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-tab {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .nav-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-tab.active { color: var(--accent); background: rgba(0,255,136,0.08); }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* PAGES */
+  .page {
+    display: none;
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 16px 80px;
+  }
+
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+  }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* LOG INPUT */
+  .log-area { display: flex; gap: 8px; margin-top: 12px; }
+
+  .log-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .log-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,136,0.07); }
+  .log-input::placeholder { color: var(--muted); }
+
+  .log-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .log-btn:hover { background: #00e87a; transform: translateY(-1px); }
+
+  .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+  .tag {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 11px;
+    border-radius: 100px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.05); }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 6px; }
+
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: var(--bg);
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .log-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 40px; }
+  .log-text { font-size: 13px; color: var(--text); flex: 1; }
+  .log-cat { font-size: 10px; padding: 2px 7px; border-radius: 100px; background: rgba(124,58,237,0.15); color: var(--accent3); border: 1px solid rgba(124,58,237,0.2); }
+  .log-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s; }
+  .log-del:hover { color: var(--danger); }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+
+  .stat-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-num { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* AI */
+  .analyze-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent3), #6d28d9);
+    color: white;
+    border: none;
+    border-radius: 11px;
+    padding: 14px;
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  .ai-bubble {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,255,136,0.04));
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 10px;
+    position: relative;
+  }
+
+  .ai-bubble::before {
+    content: '◆ AI';
+    position: absolute;
+    top: -9px; left: 14px;
+    background: var(--surface);
+    padding: 0 7px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent3);
+    letter-spacing: 2px;
+  }
+
+  .ai-text { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+  .ai-text.streaming::after { content: '▋'; animation: blink 0.7s infinite; color: var(--accent); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+
+  .mode-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .mode-btn:hover { border-color: var(--accent); background: rgba(0,255,136,0.04); transform: translateY(-2px); }
+  .mode-btn.selected { border-color: var(--accent); background: rgba(0,255,136,0.08); }
+  .mode-icon { font-size: 22px; margin-bottom: 7px; }
+  .mode-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 5px; }
+  .mode-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .goal-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: none;
+    margin-top: 10px;
+    min-height: 75px;
+    transition: border-color 0.2s;
+  }
+
+  .goal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,136,0.07); }
+  .goal-input::placeholder { color: var(--muted); }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 11px;
+    padding: 13px;
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover { background: #00e87a; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .hidden { display: none !important; }
+  .tip { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; }
+
+  .phases { display: flex; gap: 4px; margin-bottom: 20px; }
+  .phase-dot { flex: 1; height: 3px; background: var(--border); border-radius: 2px; transition: background 0.4s; }
+  .phase-dot.active { background: var(--accent); }
+  .phase-dot.done { background: rgba(0,255,136,0.4); }
+
+  /* ── DASHBOARD ── */
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .dash-title { font-size: 18px; font-weight: 700; }
+
+  .year-nav { display: flex; align-items: center; gap: 10px; }
+
+  .year-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .year-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .year-label { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); }
+
+  /* Month grid */
+  .month-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .month-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .month-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .month-card.selected { border-color: var(--accent); background: rgba(0,255,136,0.05); }
+  .month-card.empty { opacity: 0.35; cursor: default; }
+  .month-card.empty:hover { border-color: var(--border); transform: none; }
+
+  .month-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .month-count { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text); }
+  .month-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* Mini bar */
+  .mini-bars { display: flex; gap: 2px; margin-top: 8px; height: 4px; border-radius: 2px; overflow: hidden; }
+  .mini-bar { height: 100%; border-radius: 2px; }
+
+  /* Donut / category breakdown */
+  .cat-breakdown { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+  .cat-row { display: flex; align-items: center; gap: 10px; }
+  .cat-name { font-size: 13px; color: var(--text); width: 110px; flex-shrink: 0; }
+  .cat-bar-wrap { flex: 1; background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; }
+  .cat-bar { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+  .cat-pct { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 36px; text-align: right; }
+
+  /* Day detail */
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .day-cell:hover { border-color: var(--accent); transform: scale(1.05); }
+  .day-cell.selected { border-color: var(--accent); }
+  .day-cell.empty-day { opacity: 0.2; cursor: default; }
+  .day-cell.empty-day:hover { border-color: var(--border); transform: none; }
+  .day-cell.today { border-color: rgba(0,255,136,0.5); }
+
+  .day-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); z-index: 1; }
+  .day-dot { font-size: 8px; color: var(--muted); z-index: 1; }
+  .day-heat { position: absolute; inset: 0; opacity: 0.15; }
+
+  .day-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); text-align: center; }
+
+  /* Day log list */
+  .day-log-list { display: flex; flex-direction: column; gap: 5px; }
+
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .section-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="logo">LIFEFRAME</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('log')" id="tab-log">LOG</button>
+    <button class="nav-tab" onclick="showPage('coach')" id="tab-coach">COACH</button>
+    <button class="nav-tab" onclick="showPage('dash')" id="tab-dash">DASHBOARD</button>
+  </div>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    <span id="live-time">00:00</span>
+  </div>
+</nav>
+
+<!-- ═══════════ PAGE: LOG ═══════════ -->
+<div class="page active" id="page-log">
+  <div class="card">
+    <div class="card-label">บันทึกกิจกรรม — <span id="today-label"></span></div>
+    <div class="log-area">
+      <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน, ดูยูทูบ..." onkeydown="if(event.key==='Enter')addLog()" autofocus>
+      <button class="log-btn" onclick="addLog()">+ LOG</button>
+    </div>
+    <div class="quick-tags">
+      <button class="tag" onclick="quickLog('นอน')">😴 นอน</button>
+      <button class="tag" onclick="quickLog('กินข้าว')">🍚 กินข้าว</button>
+      <button class="tag" onclick="quickLog('ทำงาน')">💻 ทำงาน</button>
+      <button class="tag" onclick="quickLog('ออกกำลังกาย')">🏃 ออกกำลังกาย</button>
+      <button class="tag" onclick="quickLog('ดูซีรีส์')">📺 ดูซีรีส์</button>
+      <button class="tag" onclick="quickLog('เล่นโทรศัพท์')">📱 เล่นโทรศัพท์</button>
+      <button class="tag" onclick="quickLog('เรียน')">📚 เรียน</button>
+      <button class="tag" onclick="quickLog('ประชุม')">🗣 ประชุม</button>
+    </div>
+  </div>
+
+  <div class="card" id="today-card" style="display:none">
+    <div class="card-label">วันนี้</div>
+    <div class="timeline" id="timeline"></div>
+    <div class="stats-grid" style="margin-top:12px">
+      <div class="stat-box"><div class="stat-num" id="s-count">0</div><div class="stat-label">กิจกรรม</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-span">0h</div><div class="stat-label">ช่วงเวลา</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-top">—</div><div class="stat-label">มากสุด</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: COACH ═══════════ -->
+<div class="page" id="page-coach">
+  <div class="phases">
+    <div class="phase-dot active" id="cp1"></div>
+    <div class="phase-dot" id="cp2"></div>
+    <div class="phase-dot" id="cp3"></div>
+  </div>
+
+  <div id="coach-analyze-section">
+    <div class="card">
+      <div class="card-label">Phase 01 — Analyze</div>
+      <div class="section-title">วิเคราะห์พฤติกรรมของฉัน</div>
+      <div class="section-sub" id="coach-data-info">กำลังโหลดข้อมูล...</div>
+      <button class="analyze-btn" id="analyze-btn" onclick="startAnalysis()" disabled>
+        ◆ วิเคราะห์พฤติกรรมของฉัน
+      </button>
+      <p class="tip">* ต้องมีข้อมูลอย่างน้อย 5 กิจกรรม</p>
+    </div>
+  </div>
+
+  <div id="coach-analysis-section" class="hidden">
+    <div class="card">
+      <div class="card-label">Phase 02 — Insight</div>
+      <div class="ai-bubble"><div class="ai-text" id="analysis-text"></div></div>
+    </div>
+    <div class="card" id="goal-card">
+      <div class="card-label">Phase 02 — Goal</div>
+      <div class="section-title">🎯 เป้าหมายชีวิตของคุณคืออะไร?</div>
+      <textarea class="goal-input" id="goal-input" placeholder="เช่น: อยากเป็น developer มีรายได้ 100k/เดือน..."></textarea>
+      <button class="submit-btn" id="submit-goal-btn" onclick="analyzeGoal()">บอกฉันตรงๆ เลย →</button>
+    </div>
+  </div>
+
+  <div id="coach-verdict-section" class="hidden">
+    <div class="card">
+      <div class="card-label">Phase 03 — Verdict</div>
+      <div class="ai-bubble"><div class="ai-text" id="verdict-text"></div></div>
+    </div>
+    <div class="card hidden" id="mode-card">
+      <div class="card-label">เลือก Mode</div>
+      <div class="mode-grid">
+        <button class="mode-btn" id="mode-goal" onclick="selectMode('goal')">
+          <div class="mode-icon">🚀</div>
+          <div class="mode-name">GOAL-ORIENTED</div>
+          <div class="mode-desc">ปรับ lifestyle แบบสุดโต่ง ไปให้ถึงเป้าหมายเร็วที่สุด</div>
+        </button>
+        <button class="mode-btn" id="mode-1pct" onclick="selectMode('1pct')">
+          <div class="mode-icon">📈</div>
+          <div class="mode-name">1% BETTER</div>
+          <div class="mode-desc">ปรับ 50-60% สมดุลระหว่างชีวิตและเป้าหมาย</div>
+        </button>
+      </div>
+    </div>
+    <div class="card hidden" id="plan-card">
+      <div class="card-label">แผนของคุณ</div>
+      <div class="ai-bubble"><div class="ai-text" id="plan-text"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: DASHBOARD ═══════════ -->
+<div class="page" id="page-dash">
+  <!-- Year nav -->
+  <div class="dash-header">
+    <div class="dash-title">📊 Dashboard</div>
+    <div class="year-nav">
+      <button class="year-btn" onclick="changeYear(-1)">‹</button>
+      <span class="year-label" id="dash-year">2025</span>
+      <button class="year-btn" onclick="changeYear(1)">›</button>
+    </div>
+  </div>
+
+  <!-- Monthly overview -->
+  <div class="card">
+    <div class="card-label">รายเดือน — คลิกเดือนเพื่อดูรายละเอียด</div>
+    <div class="month-grid" id="month-grid"></div>
+  </div>
+
+  <!-- Category breakdown for selected month -->
+  <div class="card" id="month-detail-card" style="display:none">
+    <div class="card-label" id="month-detail-label">สัดส่วนเวลา</div>
+    <div class="cat-breakdown" id="cat-breakdown"></div>
+  </div>
+
+  <!-- Day grid for current month only -->
+  <div class="card" id="day-grid-card" style="display:none">
+    <div class="card-label" id="day-grid-label">รายวัน</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px">
+      <div class="day-label">อา</div><div class="day-label">จ</div><div class="day-label">อ</div>
+      <div class="day-label">พ</div><div class="day-label">พฤ</div><div class="day-label">ศ</div><div class="day-label">ส</div>
+    </div>
+    <div class="day-grid" id="day-grid"></div>
+  </div>
+
+  <!-- Selected day logs -->
+  <div class="card" id="day-detail-card" style="display:none">
+    <div class="card-label" id="day-detail-label">Log ของวันนี้</div>
+    <div class="day-log-list" id="day-log-list"></div>
+  </div>
+
+  <div class="empty-state hidden" id="dash-empty">
+    <div class="empty-icon">📭</div>
+    <div>ยังไม่มีข้อมูลในปีนี้<br>เริ่ม log กิจกรรมได้เลย!</div>
+  </div>
+</div>
+
+<script>
+
+
+const MODEL = "claude-sonnet-4-20250514";
+const STORAGE_KEY = "lifeframe_logs";
+
+// ── STORAGE ──
+function loadAllLogs() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+
+function saveAllLogs(all) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function getTodayLogs() {
+  return loadAllLogs()[todayKey()] || [];
+}
+
+function saveTodayLogs(logs) {
+  const all = loadAllLogs();
+  all[todayKey()] = logs;
+  saveAllLogs(all);
+}
+
+// ── CATEGORIES ──
+const CAT_COLORS = {
+  "นอนหลับ": "#6366f1", "อาหาร": "#f59e0b", "งาน": "#00ff88",
+  "พัฒนาตัวเอง": "#06b6d4", "สุขภาพ": "#10b981", "บันเทิง": "#f43f5e", "สังคม": "#a78bfa", "อื่นๆ": "#5a5a7a"
+};
+
+const CAT_PATTERNS = {
+  "นอน|หลับ": "นอนหลับ",
+  "กิน|ข้าว|อาหาร|กาแฟ|ชา": "อาหาร",
+  "ทำงาน|งาน|โค้ด|เขียน|ออกแบบ": "งาน",
+  "เรียน|อ่าน|ดูคอร์ส|ฝึก": "พัฒนาตัวเอง",
+  "ออกกำลัง|วิ่ง|ยิม|กีฬา": "สุขภาพ",
+  "ดู|ซีรีส์|หนัง|ยูทูบ|Netflix|เล่นเกม|โทรศัพท์": "บันเทิง",
+  "ประชุม|คุย|โทร": "สังคม"
+};
+
+function getCategory(text) {
+  for (const [p, c] of Object.entries(CAT_PATTERNS))
+    if (new RegExp(p, "i").test(text)) return c;
+  return "อื่นๆ";
+}
+
+// ── CLOCK ──
+function updateClock() {
+  document.getElementById("live-time").textContent = new Date().toTimeString().slice(0, 5);
+}
+setInterval(updateClock, 1000); updateClock();
+
+function getTime() { return new Date().toTimeString().slice(0, 5); }
+
+// ── NAV ──
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('tab-' + p).classList.add('active');
+  if (p === 'dash') renderDashboard();
+  if (p === 'coach') updateCoachDataInfo();
+}
+
+// ── LOG PAGE ──
+let todayLogs = getTodayLogs();
+
+function quickLog(t) { document.getElementById("log-input").value = t; addLog(); }
+
+function addLog() {
+  const inp = document.getElementById("log-input");
+  const text = inp.value.trim(); if (!text) return;
+  todayLogs.push({ time: getTime(), text, id: Date.now() });
+  saveTodayLogs(todayLogs);
+  inp.value = ""; inp.focus();
+  renderToday();
+}
+
+function deleteLog(id) {
+  todayLogs = todayLogs.filter(l => l.id !== id);
+  saveTodayLogs(todayLogs);
+  renderToday();
+}
+
+function renderToday() {
+  const card = document.getElementById("today-card");
+  if (todayLogs.length === 0) { card.style.display = "none"; return; }
+  card.style.display = "block";
+
+  document.getElementById("timeline").innerHTML = todayLogs.slice(-10).reverse().map(l => `
+    <div class="log-item">
+      <span class="log-time">${l.time}</span>
+      <span class="log-text">${l.text}</span>
+      <span class="log-cat">${getCategory(l.text)}</span>
+      <button class="log-del" onclick="deleteLog(${l.id})">✕</button>
+    </div>`).join("");
+
+  document.getElementById("s-count").textContent = todayLogs.length;
+  if (todayLogs.length >= 2) {
+    const a = todayLogs[0].time.split(":").map(Number);
+    const b = todayLogs[todayLogs.length-1].time.split(":").map(Number);
+    const diff = (b[0]*60+b[1]) - (a[0]*60+a[1]);
+    document.getElementById("s-span").textContent = Math.max(0, (diff/60).toFixed(1)) + "h";
+  }
+  const freq = {}; todayLogs.forEach(l => { const c = getCategory(l.text); freq[c]=(freq[c]||0)+1; });
+  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  if (top) document.getElementById("s-top").textContent = top[0].slice(0, 4);
+}
+
+// Init today label
+const now = new Date();
+const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+document.getElementById("today-label").textContent = `${now.getDate()} ${THAI_MONTHS[now.getMonth()]} ${now.getFullYear()+543}`;
+renderToday();
+
+// ── COACH PAGE ──
+let goalText = "";
+
+function updateCoachDataInfo() {
+  const all = loadAllLogs();
+  const total = Object.values(all).reduce((s, arr) => s + arr.length, 0);
+  const days = Object.keys(all).length;
+  const el = document.getElementById("coach-data-info");
+  el.textContent = total >= 5
+    ? `มีข้อมูล ${total} กิจกรรม จาก ${days} วัน พร้อมวิเคราะห์แล้ว!`
+    : `มีข้อมูล ${total} กิจกรรม — ต้องการอีก ${5-total} กิจกรรม`;
+  document.getElementById("analyze-btn").disabled = total < 5;
+}
+
+function setCoachPhase(n) {
+  for (let i = 1; i <= 3; i++) {
+    const d = document.getElementById(`cp${i}`);
+    d.className = "phase-dot" + (i < n ? " done" : i === n ? " active" : "");
+  }
+}
+
+async function callClaude(sys, user) {
+  const res = await fetch("/api/claude", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ model: MODEL, max_tokens: 1000, system: sys, messages: [{ role: "user", content: user }] })
+  });
+  const d = await res.json();
+  return d.content?.[0]?.text || "เกิดข้อผิดพลาด";
+}
+
+async function streamText(id, text, speed = 16) {
+  const el = document.getElementById(id);
+  el.classList.add("streaming"); el.textContent = "";
+  for (const c of text.split("")) {
+    el.textContent += c;
+    await new Promise(r => setTimeout(r, speed));
+  }
+  el.classList.remove("streaming");
+}
+
+async function startAnalysis() {
+  document.getElementById("analyze-btn").disabled = true;
+  document.getElementById("coach-analysis-section").classList.remove("hidden");
+  setCoachPhase(2);
+  document.getElementById("analysis-text").textContent = "กำลังวิเคราะห์...";
+  document.getElementById("analysis-text").classList.add("streaming");
+
+  const all = loadAllLogs();
+  const recentDays = Object.entries(all).sort().slice(-7);
+  const summary = recentDays.map(([d, logs]) => `${d}:\n` + logs.map(l => `  ${l.time} — ${l.text}`).join("\n")).join("\n\n");
+  const catFreq = {};
+  Object.values(all).flat().forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
+
+  try {
+    const r = await callClaude(
+      "คุณเป็น Life Coach AI ที่วิเคราะห์พฤติกรรมอย่างตรงไปตรงมา พูดภาษาไทย ไม่ต้องสวยหรู ให้ตรงประเด็น",
+      `Log 7 วันล่าสุด:\n${summary}\n\nสัดส่วนหมวดหมู่รวม: ${JSON.stringify(catFreq)}\n\nวิเคราะห์รูปแบบพฤติกรรม 3-5 ประโยค แล้วจบด้วยการถามว่า "เป้าหมายชีวิตของคุณคืออะไร? บอกมาได้เลย"`
+    );
+    await streamText("analysis-text", r, 14);
+    document.getElementById("goal-card").classList.remove("hidden");
+  } catch(e) {
+    document.getElementById("analysis-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
+    document.getElementById("analysis-text").classList.remove("streaming");
+  }
+}
+
+async function analyzeGoal() {
+  const goal = document.getElementById("goal-input").value.trim();
+  if (!goal) return;
+  goalText = goal;
+  const btn = document.getElementById("submit-goal-btn");
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> กำลังวิเคราะห์...';
+
+  document.getElementById("coach-verdict-section").classList.remove("hidden");
+  setCoachPhase(3);
+  document.getElementById("verdict-text").textContent = "กำลังประเมิน...";
+  document.getElementById("verdict-text").classList.add("streaming");
+
+  const all = loadAllLogs();
+  const catFreq = {};
+  Object.values(all).flat().forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
+
+  try {
+    const r = await callClaude(
+      "คุณเป็น Life Coach AI พูดตรงๆ ไม่ปลอบ ไม่ดุ วิเคราะห์จากข้อมูลจริง พูดภาษาไทย",
+      `สัดส่วนเวลา: ${JSON.stringify(catFreq)}\nเป้าหมาย: "${goal}"\n\n1. ด้วยพฤติกรรมปัจจุบัน จะถึงเป้าหมายนี้ต้องใช้เวลาอีกกี่ปี\n2. ทำไมถึงช้าหรือเร็วแค่นั้น\n3. จุดอ่อนที่ชัดเจนที่สุด\n\nจบด้วย: "นี่คือสิ่งที่จะทำให้คุณถึงเป้าหมายเร็วขึ้น — เลือก mode ที่เหมาะกับคุณ"`
+    );
+    await streamText("verdict-text", r, 14);
+    setTimeout(() => document.getElementById("mode-card").classList.remove("hidden"), 400);
+  } catch(e) {
+    document.getElementById("verdict-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
+    document.getElementById("verdict-text").classList.remove("streaming");
+  }
+}
+
+async function selectMode(mode) {
+  document.getElementById("mode-goal").classList.toggle("selected", mode === "goal");
+  document.getElementById("mode-1pct").classList.toggle("selected", mode === "1pct");
+  document.getElementById("plan-card").classList.remove("hidden");
+  document.getElementById("plan-text").textContent = "กำลังสร้างแผน...";
+  document.getElementById("plan-text").classList.add("streaming");
+
+  const all = loadAllLogs();
+  const recent = Object.entries(all).sort().slice(-3).map(([d,logs])=>`${d}: `+logs.map(l=>l.text).join(", ")).join("\n");
+  const modeDesc = mode === "goal"
+    ? "GOAL-ORIENTED: ปรับ lifestyle แบบสุดโต่ง เสียสละ comfort"
+    : "1% BETTER: ปรับ 50-60% ค่อยๆ เปลี่ยน สมดุล";
+
+  try {
+    const r = await callClaude(
+      "คุณเป็น Life Coach ให้แผนปฏิบัติจริง specific กับชีวิต user พูดภาษาไทย",
+      `Log ล่าสุด:\n${recent}\nเป้าหมาย: "${goalText}"\nMode: ${modeDesc}\n\nให้แผนปฏิบัติ 5 ข้อ specific กับ habit จาก log บอกว่าต้องเลิกอะไร เพิ่มอะไร เปลี่ยนอะไร`
+    );
+    await streamText("plan-text", r, 14);
+  } catch(e) {
+    document.getElementById("plan-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
+    document.getElementById("plan-text").classList.remove("streaming");
+  }
+}
+
+// ── DASHBOARD ──
+let dashYear = new Date().getFullYear();
+let selectedMonth = null;
+
+const MONTH_NAMES = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+
+function changeYear(d) {
+  const min = new Date().getFullYear() - 1;
+  const max = new Date().getFullYear();
+  dashYear = Math.max(min, Math.min(max, dashYear + d));
+  document.getElementById("dash-year").textContent = dashYear;
+  selectedMonth = null;
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const all = loadAllLogs();
+  const yearStr = String(dashYear);
+  document.getElementById("dash-year").textContent = dashYear;
+
+  // Check if any data this year
+  const hasData = Object.keys(all).some(k => k.startsWith(yearStr));
+  document.getElementById("dash-empty").classList.toggle("hidden", hasData);
+
+  // Month grid
+  const grid = document.getElementById("month-grid");
+  grid.innerHTML = "";
+  const curMonth = new Date().getMonth();
+  const curYear = new Date().getFullYear();
+
+  for (let m = 0; m < 12; m++) {
+    const monthKey = `${dashYear}-${String(m+1).padStart(2,"0")}`;
+    const monthLogs = Object.entries(all)
+      .filter(([k]) => k.startsWith(monthKey))
+      .flatMap(([,v]) => v);
+
+    const isFuture = dashYear > curYear || (dashYear === curYear && m > curMonth);
+    const isEmpty = monthLogs.length === 0;
+
+    const catFreq = {};
+    monthLogs.forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
+    const total = monthLogs.length;
+
+    const bars = Object.entries(catFreq).sort((a,b)=>b[1]-a[1]).slice(0,5)
+      .map(([c,n]) => `<div class="mini-bar" style="flex:${n};background:${CAT_COLORS[c]||'#5a5a7a'}"></div>`).join("");
+
+    const div = document.createElement("div");
+    div.className = "month-card" + (isEmpty || isFuture ? " empty" : "") + (selectedMonth === m ? " selected" : "");
+    div.innerHTML = `
+      <div class="month-name">${MONTH_NAMES[m]}</div>
+      <div class="month-count">${isFuture ? "—" : total}</div>
+      <div class="month-sub">${isFuture ? "" : total > 0 ? "กิจกรรม" : "ไม่มีข้อมูล"}</div>
+      ${total > 0 ? `<div class="mini-bars">${bars}</div>` : ""}
+    `;
+    if (!isEmpty && !isFuture) div.onclick = () => selectMonth(m);
+    grid.appendChild(div);
+  }
+
+  if (selectedMonth !== null) renderMonthDetail(selectedMonth);
+}
+
+function selectMonth(m) {
+  selectedMonth = m;
+  renderDashboard();
+  renderMonthDetail(m);
+}
+
+function renderMonthDetail(m) {
+  const all = loadAllLogs();
+  const monthKey = `${dashYear}-${String(m+1).padStart(2,"0")}`;
+  const monthLogs = Object.entries(all)
+    .filter(([k]) => k.startsWith(monthKey))
+    .flatMap(([,v]) => v);
+
+  // Category breakdown
+  const catCard = document.getElementById("month-detail-card");
+  catCard.style.display = "block";
+  document.getElementById("month-detail-label").textContent = `สัดส่วนเวลา — ${MONTH_NAMES[m]} ${dashYear}`;
+
+  const catFreq = {};
+  monthLogs.forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
+  const total = monthLogs.length;
+
+  document.getElementById("cat-breakdown").innerHTML = Object.entries(catFreq)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([c,n]) => {
+      const pct = Math.round(n/total*100);
+      return `<div class="cat-row">
+        <div class="cat-name">${c}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${CAT_COLORS[c]||'#5a5a7a'}"></div></div>
+        <div class="cat-pct">${pct}%</div>
+      </div>`;
+    }).join("");
+
+  // Day grid — only for current/recent month
+  const curYear = new Date().getFullYear();
+  const curMonth = new Date().getMonth();
+  const isCurrentMonth = dashYear === curYear && m === curMonth;
+  const dayGridCard = document.getElementById("day-grid-card");
+
+  dayGridCard.style.display = "block";
+  document.getElementById("day-grid-label").textContent = `รายวัน — ${MONTH_NAMES[m]} ${dashYear}`;
+
+  const daysInMonth = new Date(dashYear, m+1, 0).getDate();
+  const firstDay = new Date(dashYear, m, 1).getDay(); // 0=Sun
+  const dayGrid = document.getElementById("day-grid");
+  dayGrid.innerHTML = "";
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    empty.className = "day-cell empty-day";
+    dayGrid.appendChild(empty);
+  }
+
+  const today = new Date().toISOString().slice(0,10);
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${dashYear}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const dayLogs = all[dateKey] || [];
+    const isToday = dateKey === today;
+    const isFuture = new Date(dateKey) > new Date();
+
+    const cell = document.createElement("div");
+    cell.className = "day-cell" + (dayLogs.length === 0 ? " empty-day" : "") + (isToday ? " today" : "");
+
+    // Heat color based on activity count
+    const maxLogs = 20;
+    const heat = Math.min(dayLogs.length / maxLogs, 1);
+    if (dayLogs.length > 0) {
+      const topCat = Object.entries(
+        dayLogs.reduce((f,l) => { const c=getCategory(l.text); f[c]=(f[c]||0)+1; return f; }, {})
+      ).sort((a,b)=>b[1]-a[1])[0];
+      const color = CAT_COLORS[topCat?.[0]] || "#00ff88";
+      cell.innerHTML = `<div class="day-heat" style="background:${color};opacity:${0.1+heat*0.3}"></div>`;
+    }
+
+    cell.innerHTML += `<div class="day-num">${d}</div><div class="day-dot">${dayLogs.length > 0 ? "●".repeat(Math.min(dayLogs.length,3)) : ""}</div>`;
+
+    if (dayLogs.length > 0) cell.onclick = () => showDayDetail(dateKey, dayLogs, d, m);
+    dayGrid.appendChild(cell);
+  }
+}
+
+function showDayDetail(dateKey, logs, d, m) {
+  const card = document.getElementById("day-detail-card");
+  card.style.display = "block";
+  document.getElementById("day-detail-label").textContent = `Log วันที่ ${d} ${MONTH_NAMES[m]} ${dashYear}`;
+  document.getElementById("day-log-list").innerHTML = logs.map(l => `
+    <div class="log-item">
+      <span class="log-time">${l.time}</span>
+      <span class="log-text">${l.text}</span>
+      <span class="log-cat">${getCategory(l.text)}</span>
+    </div>`).join("");
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+updateCoachDataInfo();
+</script>
+</body>
+</html>
