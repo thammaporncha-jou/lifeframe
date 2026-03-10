@@ -472,6 +472,99 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
+
+// ── SUPABASE ──
+const SUPA_URL = 'https://xvmwwolzzjwvtonbgddt.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bXd3b2x6emp3dnRvbmJnZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTc0ODAsImV4cCI6MjA4ODczMzQ4MH0.zu8RCuJmQym918EWPmAn-qFbHwmhCxWiZX2kscDdqNY';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+let currentUser = null;
+
+async function initSupabase(){
+  const {data:{session}} = await supa.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    await loadAllData();
+    initApp();
+  } else {
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+}
+
+async function signUp(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-pass').value;
+  if(!email||!pass){showAuthError('กรุณากรอกอีเมลและรหัสผ่าน');return;}
+  const {error}=await supa.auth.signUp({email,password:pass});
+  if(error){showAuthError(error.message);}
+  else{showAuthError('ส่ง email ยืนยันแล้วครับ กรุณาเช็ค inbox','var(--accent)');}
+}
+
+async function signIn(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-pass').value;
+  if(!email||!pass){showAuthError('กรุณากรอกอีเมลและรหัสผ่าน');return;}
+  const {data,error}=await supa.auth.signInWithPassword({email,password:pass});
+  if(error){showAuthError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');}
+  else{currentUser=data.user;document.getElementById('auth-screen').style.display='none';document.getElementById('app').style.display='block';await loadAllData();initApp();}
+}
+
+async function signOut(){
+  await supa.auth.signOut();
+  currentUser=null;todayLogs=[];todos=[];allLogs=[];
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+function showAuthError(msg,color='var(--danger)'){
+  const el=document.getElementById('auth-error');
+  el.textContent=msg;el.style.color=color;
+}
+
+async function loadAllData(){
+  if(!currentUser) return;
+  const uid=currentUser.id;
+  const today=todayStr();
+  const {data:logsData}=await supa.from('logs').select('*').eq('user_id',uid).eq('date',today);
+  todayLogs=(logsData||[]).map(l=>({id:l.id,time:l.time,text:l.text,isStop:l.is_stop,active:false}));
+  const {data:allLogsData}=await supa.from('logs').select('*').eq('user_id',uid);
+  allLogs=(allLogsData||[]).map(l=>({id:l.id,time:l.time,text:l.text,date:l.date,isStop:l.is_stop}));
+  const {data:todosData}=await supa.from('todos').select('*').eq('user_id',uid);
+  todos=(todosData||[]).map(t=>({id:t.id,title:t.title,steps:t.steps||[],date:t.date,link:t.link||''}));
+}
+
+async function saveLog(log){
+  if(!currentUser) return;
+  const {data}=await supa.from('logs').insert({
+    user_id:currentUser.id,text:log.text,time:log.time,
+    date:todayStr(),is_stop:log.isStop||false
+  }).select().single();
+  if(data) log.id=data.id;
+}
+
+async function saveTodo(todo){
+  if(!currentUser) return;
+  const {data}=await supa.from('todos').insert({
+    user_id:currentUser.id,title:todo.title,
+    steps:todo.steps,date:todo.date,link:todo.link||''
+  }).select().single();
+  if(data) todo.id=data.id;
+}
+
+async function updateTodo(todo){
+  if(!currentUser) return;
+  await supa.from('todos').update({
+    title:todo.title,steps:todo.steps,date:todo.date,link:todo.link||''
+  }).eq('id',todo.id);
+}
+
+async function deleteFromDB(table,id){
+  if(!currentUser) return;
+  await supa.from(table).delete().eq('id',id);
+}
+
 // ── HELPERS ──
 function todayStr(){const d=new Date();return d.toISOString().slice(0,10);}
 function addDays(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
@@ -1172,13 +1265,17 @@ function saveQuickTask(){
 }
 
 // ── INIT ──
-document.getElementById('sb-name').textContent=userName;
-document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
-renderCustomTags();
-renderQuickTasks();
-renderPlanner();
-renderToday();
-// Refresh gap alerts every minute
+function initApp(){
+  document.getElementById('sb-name').textContent=userName;
+  document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
+  renderCustomTags();
+  renderQuickTasks();
+  renderPlanner();
+  renderToday();
+}
+
+// Start
+window.addEventListener('load', ()=> initSupabase());
 
 </script>
 </div><!-- /app -->
