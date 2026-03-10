@@ -342,6 +342,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
     </div>
 
+    <!-- Hours summary -->
+    <div class="card" id="hours-summary-card">
+      <div class="card-label">เวลารวมแต่ละหมวด</div>
+      <div id="hours-summary-list" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
+    </div>
+
     <!-- Category manager -->
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -547,7 +553,7 @@ function deleteLog(id){todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
 function renderToday(){
   const tl=document.getElementById('timeline'); if(!tl) return;
   if(!todayLogs.length){
-    tl.innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:Space Mono,monospace">— ยังไม่มี log วันนี้ —</div>';
+    tl.innerHTML='<div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:'Space Mono',monospace">— ยังไม่มี log วันนี้ —</div>';
     return;
   }
   tl.innerHTML = todayLogs.slice().reverse().map((l,i)=>{
@@ -565,7 +571,7 @@ function renderToday(){
       +'<span class="log-time" style="'+(l.active?'color:var(--accent)':'')+'">'+l.time+'</span>'
       +'<span class="log-text">'+l.text+'</span>'
       +(catName?'<span class="log-cat">'+catName+'</span>':'')
-      +(l.active?'<span style="font-size:9px;color:var(--accent);font-family:Space Mono,monospace">●</span>':'')
+      +(l.active?'<span style="font-size:9px;color:var(--accent);font-family:'Space Mono',monospace">●</span>':'')
       +(l.active&&isLatest?'<button onclick="stopCurrentLog()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:10px;cursor:pointer;white-space:nowrap">■ stop</button>':'')
       +'<button class="log-del" onclick="deleteLog('+l.id+')">✕</button>'
       +'</div>';
@@ -878,6 +884,79 @@ function renderCatList(){
     </div>`).join('');
 }
 
+function calcHours(year, month){
+  // Get logs for the month, find start→stop pairs
+  const prefix = `${year}-${String(month+1).padStart(2,'0')}`;
+  const today = todayStr();
+  const live = today.startsWith(prefix) ? todayLogs.map(l=>({...l, date:today})) : [];
+  const allMonthLogs = [...allLogs.filter(l=>l.date&&l.date.startsWith(prefix)), ...live];
+
+  // Group by date, then calculate durations from play→stop pairs
+  const byDate = {};
+  allMonthLogs.forEach(l=>{ if(!byDate[l.date]) byDate[l.date]=[]; byDate[l.date].push(l); });
+
+  const hours = {}; // catId -> minutes
+  categories.forEach(c=>hours[c.id]=0);
+  hours['other']=0;
+
+  Object.values(byDate).forEach(dayLogs=>{
+    // Sort by time
+    dayLogs.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    for(let i=0;i<dayLogs.length;i++){
+      const l=dayLogs[i];
+      if(l.isStop) continue;
+      // Find next entry (stop or next activity)
+      const next=dayLogs[i+1];
+      if(!next) continue;
+      const startMins = timeToMins(l.time);
+      const endMins = timeToMins(next.time);
+      const diff = endMins - startMins;
+      if(diff<=0||diff>480) continue; // skip >8hr gaps (likely missing data)
+      const cat = getCategoryForText(l.text);
+      const key = cat?cat.id:'other';
+      hours[key]=(hours[key]||0)+diff;
+    }
+  });
+  return hours;
+}
+
+function timeToMins(t){
+  if(!t) return 0;
+  const [h,m]=t.split(':').map(Number);
+  return h*60+(m||0);
+}
+
+function renderHoursSummary(year, month){
+  const el=document.getElementById('hours-summary-list'); if(!el) return;
+  const hours=calcHours(year, month);
+  const entries=categories.map(c=>({name:c.name,color:c.color,mins:hours[c.id]||0}))
+    .concat([{name:'อื่นๆ',color:'#333355',mins:hours['other']||0}])
+    .filter(e=>e.mins>0)
+    .sort((a,b)=>b.mins-a.mins);
+  if(!entries.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">— ยังไม่มีข้อมูล —</div>';
+    return;
+  }
+  const maxMins=entries[0].mins;
+  el.innerHTML=entries.map(e=>{
+    const h=Math.floor(e.mins/60), m=e.mins%60;
+    const label=h>0?(m>0?`${h} ชม. ${m} น.`:`${h} ชม.`):`${m} น.`;
+    const pct=Math.round(e.mins/maxMins*100);
+    return `<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:9px;height:9px;border-radius:2px;background:${e.color};flex-shrink:0"></div>
+          <span style="font-size:12px">${e.name}</span>
+        </div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)">${label}</span>
+      </div>
+      <div style="height:4px;background:var(--surface2);border-radius:2px">
+        <div style="height:4px;background:${e.color};border-radius:2px;width:${pct}%;transition:width .4s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderDash(){
   const logs = getMonthLogs(dashYear, dashMonth);
   const counts = getCounts(logs);
@@ -886,6 +965,7 @@ function renderDash(){
   document.getElementById('dash-month-label').textContent=label;
   drawDonut(counts, total);
   renderLegend(counts, total);
+  renderHoursSummary(dashYear, dashMonth);
   renderCatList();
 }
 
