@@ -228,6 +228,24 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <button class="add-tag-btn" onclick="addCustomTag()">+</button>
     </div>
   </div>
+  <div class="quick-log-section" style="border-top:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="quick-log-title" style="margin:0">งานที่ทำบ่อย</div>
+      <button onclick="openQuickTaskModal()" style="background:transparent;border:none;color:var(--accent);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px">+ เพิ่ม</button>
+    </div>
+    <div id="quick-tasks-sidebar" style="display:flex;flex-direction:column;gap:5px"></div>
+  </div>
+  <div style="padding:16px;border-top:1px solid var(--border)">
+    <div class="quick-log-title">แจ้งเตือน</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="notif-status">ปิดอยู่</div>
+    <select id="notif-interval" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:8px">
+      <option value="30">ทุก 30 นาที</option>
+      <option value="60" selected>ทุก 1 ชั่วโมง</option>
+      <option value="120">ทุก 2 ชั่วโมง</option>
+      <option value="180">ทุก 3 ชั่วโมง</option>
+    </select>
+    <button id="notif-btn" onclick="toggleNotif()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer">เปิดแจ้งเตือน</button>
+  </div>
 </div>
 
 <nav class="topnav">
@@ -256,13 +274,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <button class="log-btn" onclick="addLog()">+ LOG</button>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-        <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace">เวลา:</span>
-        <button class="time-preset" onclick="setTimePreset(0)">ตอนนี้</button>
-        <button class="time-preset" onclick="setTimePreset(-30)">30 นาทีก่อน</button>
-        <button class="time-preset" onclick="setTimePreset(-60)">1 ชม.ก่อน</button>
-        <button class="time-preset" onclick="setTimePreset(-120)">2 ชม.ก่อน</button>
-      </div>
+
       <div class="all-tags" id="all-tags">
         <button class="tag" onclick="quickLog('😴 นอน')">😴 นอน</button>
         <button class="tag" onclick="quickLog('🍚 กินข้าว')">🍚 กินข้าว</button>
@@ -273,24 +285,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
     </div>
 
-    <!-- Notification settings -->
-    <div class="card" id="notif-card">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div class="card-label" style="margin-bottom:4px">แจ้งเตือน</div>
-          <div style="font-size:12px;color:var(--muted)" id="notif-status">ปิดอยู่</div>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <select id="notif-interval" class="log-input" style="width:auto;padding:6px 10px;font-size:12px">
-            <option value="30">ทุก 30 นาที</option>
-            <option value="60" selected>ทุก 1 ชั่วโมง</option>
-            <option value="120">ทุก 2 ชั่วโมง</option>
-            <option value="180">ทุก 3 ชั่วโมง</option>
-          </select>
-          <button class="log-btn" id="notif-btn" onclick="toggleNotif()" style="padding:8px 14px;font-size:11px">เปิด</button>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Timeline with gaps -->
     <div class="card" id="today-card">
@@ -400,6 +395,26 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="np-time" id="np-timer">00:00</div>
   <button class="np-log" onclick="logCurrentTask()">+ LOG</button>
   <button class="np-stop" onclick="stopTask()">■ หยุด</button>
+</div>
+
+<!-- QUICK TASK MODAL -->
+<div id="quick-task-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div class="modal-box" style="max-width:400px">
+    <div class="modal-title">⚡ เพิ่มงาน shortcut</div>
+    <div class="modal-field"><label class="modal-label">ชื่องาน</label><input class="modal-input" id="qt-title" placeholder="เช่น: ออกกำลังกาย"></div>
+    <div class="modal-field">
+      <label class="modal-label">ขั้นตอน (ถ้ามี)</label>
+      <div class="steps-editor" id="qt-steps-editor">
+        <div class="step-input-row"><input class="step-input" placeholder="ขั้นตอนที่ 1..."><button class="step-del-btn" onclick="removeStep(this)">✕</button></div>
+      </div>
+      <button class="add-step-btn" onclick="addQtStep()" style="margin-top:6px">+ เพิ่มขั้นตอน</button>
+    </div>
+    <div class="modal-field"><label class="modal-label">ลิงก์ (ถ้ามี)</label><input class="modal-input" id="qt-link" placeholder="https://..."></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeQuickTaskModal()">ยกเลิก</button>
+      <button class="modal-save" onclick="saveQuickTask()">บันทึก →</button>
+    </div>
+  </div>
 </div>
 
 <!-- CAT MODAL -->
@@ -938,8 +953,7 @@ function logCurrentTask() {
   const todo = todos.find(t => t.id === activeTaskId);
   if (!todo) return;
   document.getElementById('log-input').value = todo.title;
-  setTimePreset(0);
-  showPage('log');
+    showPage('log');
   document.getElementById('log-input').focus();
 }
 
@@ -953,15 +967,84 @@ function updateNpTimer() {
     h > 0 ? `${h}:${String(m).padStart(2,'0')}` : `${String(m).padStart(2,'0')} น.`;
 }
 
+// ── QUICK TASKS ──
+let quickTasks = [
+  {id:1, title:'ออกกำลังกาย', steps:[{text:'วิ่ง 30 นาที',done:false}], link:''},
+  {id:2, title:'อ่านหนังสือ', steps:[{text:'อ่าน 20 หน้า',done:false}], link:''},
+];
+let qtNextId = 3;
+
+function renderQuickTasks(){
+  const el = document.getElementById('quick-tasks-sidebar'); if(!el) return;
+  if(!quickTasks.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--muted);font-family:\'Space Mono\',monospace">— ยังไม่มี shortcut —</div>';
+    return;
+  }
+  el.innerHTML = quickTasks.map(qt=>`
+    <div style="display:flex;align-items:center;gap:6px">
+      <button onclick="addQuickTaskToday(${qt.id})" style="flex:1;text-align:left;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <span style="color:var(--accent);font-size:10px">▶</span> ${qt.title}
+      </button>
+      <button onclick="removeQuickTask(${qt.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px;transition:color .15s"
+        onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--muted)'">✕</button>
+    </div>`).join('');
+}
+
+function addQuickTaskToday(id){
+  const qt = quickTasks.find(q=>q.id===id); if(!qt) return;
+  const today = todayStr();
+  // Deep copy steps
+  const steps = qt.steps.map(s=>({text:s.text, done:false}));
+  todos.push({id:Date.now(), title:qt.title, steps, link:qt.link, date:today});
+  renderPlanner();
+  // Flash feedback
+  showPage('todo');
+  closeSidebar();
+}
+
+function removeQuickTask(id){
+  quickTasks = quickTasks.filter(q=>q.id!==id);
+  renderQuickTasks();
+}
+
+function openQuickTaskModal(){
+  document.getElementById('qt-title').value='';
+  document.getElementById('qt-link').value='';
+  document.getElementById('qt-steps-editor').innerHTML=`<div class="step-input-row"><input class="step-input" placeholder="ขั้นตอนที่ 1..."><button class="step-del-btn" onclick="removeStep(this)">✕</button></div>`;
+  document.getElementById('quick-task-modal').style.display='flex';
+  document.getElementById('qt-title').focus();
+}
+
+function closeQuickTaskModal(){
+  document.getElementById('quick-task-modal').style.display='none';
+}
+
+function addQtStep(){
+  const ed=document.getElementById('qt-steps-editor'); const n=ed.children.length+1;
+  const d=document.createElement('div'); d.className='step-input-row';
+  d.innerHTML=`<input class="step-input" placeholder="ขั้นตอนที่ ${n}..."><button class="step-del-btn" onclick="removeStep(this)">✕</button>`;
+  ed.appendChild(d); d.querySelector('input').focus();
+}
+
+function saveQuickTask(){
+  const title=document.getElementById('qt-title').value.trim(); if(!title) return alert('ใส่ชื่องานด้วยนะครับ');
+  const steps=[...document.querySelectorAll('#qt-steps-editor .step-input')].map(i=>i.value.trim()).filter(Boolean).map(t=>({text:t,done:false}));
+  const link=document.getElementById('qt-link').value.trim();
+  quickTasks.push({id:qtNextId++, title, steps, link});
+  renderQuickTasks();
+  closeQuickTaskModal();
+}
+
 // ── INIT ──
 document.getElementById('sb-name').textContent=userName;
 document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
-setTimePreset(0);
 renderCustomTags();
+renderQuickTasks();
 renderPlanner();
 renderToday();
 // Refresh gap alerts every minute
-setInterval(renderToday, 60000);
+
 </script>
 </body>
 </html>
