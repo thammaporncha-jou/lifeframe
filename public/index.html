@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LIFEFRAME</title>
+<meta name="theme-color" content="#00ff88">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LIFEFRAME">
+<link rel="manifest" href="/manifest.json">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 :root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
@@ -55,7 +60,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
 
 /* PAGES */
-.page{display:none;padding-top:68px;padding-bottom:80px}
+.page{display:none;padding-top:68px;padding-bottom:80px}.page.has-player{padding-bottom:130px}
 .page.active{display:block}
 .std-page{max-width:720px;margin:0 auto;padding-left:16px;padding-right:16px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
@@ -172,6 +177,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .gap-suggest:hover{background:rgba(124,58,237,.12)}
 .log-item.retro{border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.04)}
 .log-time.retro-time{color:var(--accent3)}
+
+/* PLAY/PAUSE */
+.play-btn{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);color:var(--accent);font-size:11px;padding:3px 9px;border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .15s}
+.play-btn:hover{background:rgba(0,255,136,.2)}
+.play-btn.playing{background:rgba(255,68,102,.1);border-color:rgba(255,68,102,.3);color:var(--danger)}
+.play-btn.playing:hover{background:rgba(255,68,102,.2)}
+.now-playing-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:var(--surface);border-top:1px solid rgba(0,255,136,.25);padding:10px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px)}
+.np-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 1s infinite;flex-shrink:0}
+.np-title{font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-time{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);flex-shrink:0}
+.np-stop{background:transparent;border:1px solid rgba(255,68,102,.3);color:var(--danger);font-size:11px;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .15s;flex-shrink:0}
+.np-stop:hover{background:rgba(255,68,102,.1)}
+.np-log{background:var(--accent);color:#000;border:none;font-size:11px;padding:4px 12px;border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace;font-weight:700;transition:all .15s;flex-shrink:0}
+.np-log:hover{background:#00e87a}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
@@ -247,7 +266,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="all-tags" id="all-tags">
         <button class="tag" onclick="quickLog('😴 นอน')">😴 นอน</button>
         <button class="tag" onclick="quickLog('🍚 กินข้าว')">🍚 กินข้าว</button>
-        <button class="tag" onclick="quickLog('💻 ทำงานประจำ')">💻 ทำงานประจำ</button>
         <button class="tag" onclick="quickLog('🏃 ออกกำลังกาย')">🏃 ออกกำลังกาย</button>
         <button class="tag" onclick="quickLog('📚 อ่านหนังสือ')">📚 อ่านหนังสือ</button>
         <button class="tag" onclick="quickLog('🗣 เรียนภาษาอังกฤษ')">🗣 เรียนภาษาอังกฤษ</button>
@@ -373,6 +391,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <button class="modal-save" onclick="saveTodo()">บันทึก →</button>
     </div>
   </div>
+</div>
+
+<!-- NOW PLAYING BAR -->
+<div id="now-playing-bar" class="now-playing-bar" style="display:none">
+  <div class="np-dot"></div>
+  <div class="np-title" id="np-title">—</div>
+  <div class="np-time" id="np-timer">00:00</div>
+  <button class="np-log" onclick="logCurrentTask()">+ LOG</button>
+  <button class="np-stop" onclick="stopTask()">■ หยุด</button>
 </div>
 
 <!-- CAT MODAL -->
@@ -542,6 +569,9 @@ function renderPlanner(){
             <span class="drag-handle" title="ลากเพื่อเรียงลำดับ">⠿</span>
             <div class="row-title">${todo.title}</div>
             <div class="row-actions">
+              <button class="${activeTaskId===todo.id?'play-btn playing':'play-btn'}" onclick="playTask(${todo.id},'${todo.title.replace(/'/g,"\\'")}')">
+                ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
+              </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
               ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">→วันนี้</button>`:''}
               ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">→วัน</button>`:''}
@@ -711,26 +741,8 @@ let catNextId = 7;
 let dashYear = new Date().getFullYear();
 let dashMonth = new Date().getMonth(); // 0-based
 
-// Generate demo logs for current month
 const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-function generateDemoLogs(){
-  const demos=[
-    {text:'นอน',count:28},{text:'กินข้าว',count:60},{text:'ทำงาน',count:22},
-    {text:'ออกกำลังกาย',count:8},{text:'อ่านหนังสือ',count:5},{text:'เล่นโทรศัพท์',count:18},
-    {text:'หาข้อมูล',count:6},{text:'ทำงานเสริม',count:4}
-  ];
-  const logs=[];
-  const now=new Date();
-  const y=now.getFullYear(),m=now.getMonth();
-  demos.forEach(d=>{
-    for(let i=0;i<d.count;i++){
-      const day=Math.floor(Math.random()*now.getDate())+1;
-      logs.push({text:d.text,date:`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`});
-    }
-  });
-  return logs;
-}
-let allLogs = generateDemoLogs();
+let allLogs = [];
 
 function getCategoryForText(text){
   const lower = text.toLowerCase();
@@ -871,6 +883,74 @@ function deleteCat(id){
 function getCat(text){
   const cat=getCategoryForText(text);
   return cat?cat.name:'อื่นๆ';
+}
+
+// ── PLAY / PAUSE ──
+let activeTaskId = null;
+let taskStartTime = null;  // "HH:MM" string
+let taskTimerInterval = null;
+
+function playTask(id, title) {
+  // If same task — pause it
+  if (activeTaskId === id) { stopTask(); return; }
+  // Auto-log previous task before switching
+  if (activeTaskId !== null) autoLogStop();
+  activeTaskId = id;
+  taskStartTime = getTime();
+  // Log start
+  todayLogs.push({time: taskStartTime, text: title, id: Date.now(), retro: false});
+  todayLogs.sort((a,b) => a.time.localeCompare(b.time));
+  renderToday();
+  // Show bar
+  document.getElementById('np-title').textContent = title;
+  document.getElementById('now-playing-bar').style.display = 'flex';
+  // Timer
+  if (taskTimerInterval) clearInterval(taskTimerInterval);
+  taskTimerInterval = setInterval(updateNpTimer, 1000);
+  updateNpTimer();
+  // Re-render planner to update button states
+  renderPlanner();
+}
+
+function stopTask() {
+  if (activeTaskId === null) return;
+  autoLogStop();
+  activeTaskId = null;
+  taskStartTime = null;
+  clearInterval(taskTimerInterval); taskTimerInterval = null;
+  document.getElementById('now-playing-bar').style.display = 'none';
+  renderPlanner();
+}
+
+function autoLogStop() {
+  // log a "หยุด" entry so timeline shows the end
+  if (!activeTaskId) return;
+  const todo = todos.find(t => t.id === activeTaskId);
+  if (!todo) return;
+  const stopTime = getTime();
+  todayLogs.push({time: stopTime, text: `หยุด: ${todo.title}`, id: Date.now(), retro: false});
+  todayLogs.sort((a,b) => a.time.localeCompare(b.time));
+  renderToday();
+}
+
+function logCurrentTask() {
+  // Switch to log page with task name pre-filled
+  const todo = todos.find(t => t.id === activeTaskId);
+  if (!todo) return;
+  document.getElementById('log-input').value = todo.title;
+  setTimePreset(0);
+  showPage('log');
+  document.getElementById('log-input').focus();
+}
+
+function updateNpTimer() {
+  if (!taskStartTime) return;
+  const [sh, sm] = taskStartTime.split(':').map(Number);
+  const now = new Date();
+  const diffMins = (now.getHours()*60 + now.getMinutes()) - (sh*60 + sm);
+  const h = Math.floor(diffMins/60), m = diffMins%60;
+  document.getElementById('np-timer').textContent =
+    h > 0 ? `${h}:${String(m).padStart(2,'0')}` : `${String(m).padStart(2,'0')} น.`;
 }
 
 // ── INIT ──
