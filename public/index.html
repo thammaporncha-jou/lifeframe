@@ -3,1012 +3,885 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LIFEFRAME v2</title>
+<title>LIFEFRAME</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --accent: #00ff88;
-    --accent3: #7c3aed;
-    --text: #e8e8f0;
-    --muted: #5a5a7a;
-    --danger: #ff4444;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans Thai', sans-serif;
-    min-height: 100vh;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* NAV */
-  .nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    background: rgba(10,10,15,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 52px;
-  }
-
-  .logo {
-    font-family: 'Space Mono', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 4px;
-  }
-
-  .nav-tabs {
-    display: flex;
-    gap: 4px;
-  }
-
-  .nav-tab {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 1px;
-  }
-
-  .nav-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-  .nav-tab.active { color: var(--accent); background: rgba(0,255,136,0.08); }
-
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-  }
-
-  .live-dot {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  /* PAGES */
-  .page {
-    display: none;
-    position: relative;
-    z-index: 1;
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 72px 16px 80px;
-  }
-
-  .page.active { display: block; }
-
-  /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 14px;
-  }
-
-  .card-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  /* LOG INPUT */
-  .log-area { display: flex; gap: 8px; margin-top: 12px; }
-
-  .log-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 11px 14px;
-    color: var(--text);
-    font-family: 'Noto Sans Thai', sans-serif;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .log-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,136,0.07); }
-  .log-input::placeholder { color: var(--muted); }
-
-  .log-btn {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 10px;
-    padding: 11px 18px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .log-btn:hover { background: #00e87a; transform: translateY(-1px); }
-
-  .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-
-  .tag {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 4px 11px;
-    border-radius: 100px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.05); }
-
-  /* TIMELINE */
-  .timeline { display: flex; flex-direction: column; gap: 6px; }
-
-  .log-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    background: var(--bg);
-    border-radius: 9px;
-    border: 1px solid var(--border);
-    animation: fadeIn 0.2s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateX(-6px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .log-time { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 40px; }
-  .log-text { font-size: 13px; color: var(--text); flex: 1; }
-  .log-cat { font-size: 10px; padding: 2px 7px; border-radius: 100px; background: rgba(124,58,237,0.15); color: var(--accent3); border: 1px solid rgba(124,58,237,0.2); }
-  .log-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0 4px; transition: color 0.15s; }
-  .log-del:hover { color: var(--danger); }
-
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-
-  .stat-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .stat-num { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent); }
-  .stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
-
-  /* AI */
-  .analyze-btn {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent3), #6d28d9);
-    color: white;
-    border: none;
-    border-radius: 11px;
-    padding: 14px;
-    font-family: 'Noto Sans Thai', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 10px;
-  }
-
-  .analyze-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-
-  .ai-bubble {
-    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,255,136,0.04));
-    border: 1px solid rgba(124,58,237,0.25);
-    border-radius: 14px;
-    padding: 18px;
-    margin-top: 10px;
-    position: relative;
-  }
-
-  .ai-bubble::before {
-    content: '◆ AI';
-    position: absolute;
-    top: -9px; left: 14px;
-    background: var(--surface);
-    padding: 0 7px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--accent3);
-    letter-spacing: 2px;
-  }
-
-  .ai-text { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
-  .ai-text.streaming::after { content: '▋'; animation: blink 0.7s infinite; color: var(--accent); }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-
-  .mode-btn {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    padding: 18px 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-  }
-
-  .mode-btn:hover { border-color: var(--accent); background: rgba(0,255,136,0.04); transform: translateY(-2px); }
-  .mode-btn.selected { border-color: var(--accent); background: rgba(0,255,136,0.08); }
-  .mode-icon { font-size: 22px; margin-bottom: 7px; }
-  .mode-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 5px; }
-  .mode-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
-
-  .goal-input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 12px 14px;
-    color: var(--text);
-    font-family: 'Noto Sans Thai', sans-serif;
-    font-size: 14px;
-    outline: none;
-    resize: none;
-    margin-top: 10px;
-    min-height: 75px;
-    transition: border-color 0.2s;
-  }
-
-  .goal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,136,0.07); }
-  .goal-input::placeholder { color: var(--muted); }
-
-  .submit-btn {
-    width: 100%;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 11px;
-    padding: 13px;
-    font-family: 'Noto Sans Thai', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-  }
-
-  .submit-btn:hover { background: #00e87a; }
-  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .hidden { display: none !important; }
-  .tip { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; }
-
-  .phases { display: flex; gap: 4px; margin-bottom: 20px; }
-  .phase-dot { flex: 1; height: 3px; background: var(--border); border-radius: 2px; transition: background 0.4s; }
-  .phase-dot.active { background: var(--accent); }
-  .phase-dot.done { background: rgba(0,255,136,0.4); }
-
-  /* ── DASHBOARD ── */
-  .dash-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-
-  .dash-title { font-size: 18px; font-weight: 700; }
-
-  .year-nav { display: flex; align-items: center; gap: 10px; }
-
-  .year-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    width: 30px; height: 30px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .year-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .year-label { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); }
-
-  /* Month grid */
-  .month-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .month-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .month-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .month-card.selected { border-color: var(--accent); background: rgba(0,255,136,0.05); }
-  .month-card.empty { opacity: 0.35; cursor: default; }
-  .month-card.empty:hover { border-color: var(--border); transform: none; }
-
-  .month-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-  .month-count { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text); }
-  .month-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  /* Mini bar */
-  .mini-bars { display: flex; gap: 2px; margin-top: 8px; height: 4px; border-radius: 2px; overflow: hidden; }
-  .mini-bar { height: 100%; border-radius: 2px; }
-
-  /* Donut / category breakdown */
-  .cat-breakdown { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-
-  .cat-row { display: flex; align-items: center; gap: 10px; }
-  .cat-name { font-size: 13px; color: var(--text); width: 110px; flex-shrink: 0; }
-  .cat-bar-wrap { flex: 1; background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; }
-  .cat-bar { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
-  .cat-pct { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); min-width: 36px; text-align: right; }
-
-  /* Day detail */
-  .day-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 14px;
-  }
-
-  .day-cell {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .day-cell:hover { border-color: var(--accent); transform: scale(1.05); }
-  .day-cell.selected { border-color: var(--accent); }
-  .day-cell.empty-day { opacity: 0.2; cursor: default; }
-  .day-cell.empty-day:hover { border-color: var(--border); transform: none; }
-  .day-cell.today { border-color: rgba(0,255,136,0.5); }
-
-  .day-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); z-index: 1; }
-  .day-dot { font-size: 8px; color: var(--muted); z-index: 1; }
-  .day-heat { position: absolute; inset: 0; opacity: 0.15; }
-
-  .day-label { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); text-align: center; }
-
-  /* Day log list */
-  .day-log-list { display: flex; flex-direction: column; gap: 5px; }
-
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.15);
-    border-top-color: currentColor;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  .section-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .section-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 4px; }
-
-  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
-  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
+:root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans Thai',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02)1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* SIDEBAR */
+#sidebar-overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+#sidebar{position:fixed;top:0;left:0;bottom:0;width:280px;z-index:60;background:var(--surface);border-right:1px solid var(--border);transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#sidebar.open{transform:translateX(0)}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:4px;margin-bottom:16px}
+.profile-area{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:8px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent));display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.profile-name{font-size:14px;font-weight:600}
+.profile-edit{font-size:11px;color:var(--accent);cursor:pointer;margin-top:2px;font-family:'Space Mono',monospace}
+.profile-edit:hover{text-decoration:underline}
+.name-edit-area{display:none;margin-top:8px}
+.name-edit-input{width:100%;background:var(--bg);border:1px solid var(--accent);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:13px;outline:none}
+.sidebar-nav{flex:1;padding:16px;overflow-y:auto}
+.nav-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:8px;margin-top:16px;padding-left:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .15s;color:var(--muted);font-size:14px;border:1px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.nav-item.active{background:rgba(0,255,136,.07);color:var(--accent);border-color:rgba(0,255,136,.15)}
+.quick-log-section{padding:16px;border-top:1px solid var(--border)}
+.quick-log-title{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:3px;margin-bottom:10px}
+.custom-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ctag{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:100px;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.ctag:hover{border-color:var(--accent);color:var(--accent)}
+.ctag .del{color:var(--muted);font-size:10px}
+.add-tag-area{display:flex;gap:6px}
+.add-tag-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:12px;outline:none}
+.add-tag-input:focus{border-color:var(--accent)}
+.add-tag-input::placeholder{color:var(--muted);font-size:11px}
+.add-tag-btn{background:var(--accent);color:#000;border:none;border-radius:8px;padding:7px 12px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer}
+
+/* TOPNAV */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:40;background:rgba(8,8,16,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 16px;gap:12px}
+.menu-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.menu-btn:hover{border-color:var(--accent);color:var(--accent)}
+.topnav-logo{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:4px}
+.topnav-tabs{display:flex;gap:2px;margin-left:auto}
+.topnav-tab{background:transparent;border:none;color:var(--muted);padding:6px 12px;border-radius:7px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.topnav-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.topnav-tab.active{color:var(--accent);background:rgba(0,255,136,.08)}
+.live-badge{display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);margin-left:8px}
+.live-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* PAGES */
+.page{display:none;padding-top:68px;padding-bottom:80px}
+.page.active{display:block}
+.std-page{max-width:720px;margin:0 auto;padding-left:16px;padding-right:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+.card-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.section-sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* LOG */
+.log-area{display:flex;gap:8px;margin-top:12px}
+.log-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.log-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,255,136,.06)}
+.log-input::placeholder{color:var(--muted)}
+.log-btn{background:var(--accent);color:#000;border:none;border-radius:10px;padding:11px 18px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.log-btn:hover{background:#00e87a;transform:translateY(-1px)}
+.all-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 11px;border-radius:100px;font-size:12px;cursor:pointer;transition:all .15s}
+.tag:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,255,136,.05)}
+.tag.custom{border-color:rgba(124,58,237,.3);color:var(--accent3)}
+.tag.custom:hover{border-color:var(--accent3);background:rgba(124,58,237,.08)}
+.timeline{display:flex;flex-direction:column;gap:6px}
+.log-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-radius:9px;border:1px solid var(--border);animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.log-time{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);min-width:38px}
+.log-text{font-size:13px;flex:1}
+.log-cat{font-size:10px;padding:2px 7px;border-radius:100px;background:rgba(124,58,237,.12);color:var(--accent3);border:1px solid rgba(124,58,237,.18)}
+.log-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px;transition:color .15s}
+.log-del:hover{color:var(--danger)}
+
+/* PLANNER */
+.add-todo-btn{background:var(--accent);color:#000;border:none;border-radius:9px;padding:8px 16px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.add-todo-btn:hover{background:#00e87a;transform:translateY(-1px)}
+.planner-wrap{max-width:720px;margin:0 auto;padding:0 16px}
+.day-section{margin-bottom:24px}
+.day-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;position:sticky;top:52px;z-index:10;background:var(--bg);padding:8px 0 6px}
+.day-header::before{content:'';position:absolute;inset:0;background:var(--bg);z-index:-1}
+.day-name{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.day-sub{font-size:11px;color:var(--muted)}
+.day-badge{font-size:9px;padding:2px 8px;border-radius:100px;font-family:'Space Mono',monospace}
+.day-badge.today{background:rgba(0,255,136,.12);color:var(--accent);border:1px solid rgba(0,255,136,.2)}
+.day-badge.past{background:rgba(255,68,102,.08);color:#ff6688;border:1px solid rgba(255,68,102,.15)}
+.day-count{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;margin-left:auto}
+.day-add{background:transparent;border:none;color:var(--accent);font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px}
+.day-add:hover{text-decoration:underline}
+.todo-row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:8px;transition:border-color .15s,box-shadow .15s;animation:fadeIn .2s ease}
+.todo-row:hover{border-color:rgba(255,255,255,.1);box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.todo-row.all-done{opacity:.5}
+.todo-row.all-done .row-title{text-decoration:line-through;color:var(--muted)}
+.row-top{display:flex;align-items:flex-start;gap:10px}
+.row-title{font-size:14px;font-weight:600;flex:1;line-height:1.4}
+.row-actions{display:flex;gap:4px;flex-shrink:0;margin-top:1px}
+.row-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace;transition:all .12s;white-space:nowrap}
+.row-btn:hover{border-color:var(--accent);color:var(--accent)}
+.row-btn.del:hover{border-color:var(--danger);color:var(--danger)}
+.progress-bar{height:2px;background:var(--border);border-radius:1px;margin:8px 0 7px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:1px;transition:width .3s}
+.row-steps{display:flex;flex-direction:column;gap:5px}
+.row-step{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+.row-step-box{width:14px;height:14px;border:1px solid var(--muted);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .12s}
+.row-step.chk .row-step-box{background:var(--accent);border-color:var(--accent);color:#000}
+.row-step.chk span{text-decoration:line-through}
+.row-step:hover .row-step-box{border-color:var(--accent)}
+.row-footer{display:flex;align-items:center;gap:6px;margin-top:10px}
+.row-link{font-size:11px;color:var(--accent);text-decoration:none;padding:3px 9px;border:1px solid rgba(0,255,136,.2);border-radius:6px}
+.row-link:hover{background:rgba(0,255,136,.08)}
+.past-section{opacity:.65}
+/* DRAG */
+.todo-row{cursor:grab}
+.todo-row.dragging{opacity:.35;transform:scale(.98);cursor:grabbing}
+.todo-row.drag-over-top{border-top:2px solid var(--accent)}
+.todo-row.drag-over-bot{border-bottom:2px solid var(--accent)}
+.day-section.day-drag-over .day-drop-hint{display:block}
+.day-drop-hint{display:none;border:1.5px dashed rgba(0,255,136,.3);border-radius:10px;padding:10px;text-align:center;font-size:11px;color:var(--accent);font-family:'Space Mono',monospace;margin-bottom:8px}
+.drag-handle{color:var(--muted);font-size:13px;cursor:grab;padding:0 6px 0 0;user-select:none;flex-shrink:0;margin-top:2px}
+.drag-handle:hover{color:var(--accent)}
+/* EDIT MODAL */
+#edit-modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+#edit-modal.open{display:flex}
+.edit-step-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.edit-step-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:12px;outline:none}
+.edit-step-input:focus{border-color:var(--accent3)}
+.edit-step-done{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+
+/* MODAL */
+#todo-modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+#todo-modal.open{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:460px;margin:16px}
+.modal-title{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:2px;margin-bottom:20px}
+.modal-field{margin-bottom:14px}
+.modal-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:6px}
+.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.modal-input:focus{border-color:var(--accent)}
+.modal-input::placeholder{color:var(--muted)}
+.steps-editor{display:flex;flex-direction:column;gap:6px}
+.step-input-row{display:flex;gap:6px}
+.step-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Noto Sans Thai',sans-serif;font-size:12px;outline:none}
+.step-input:focus{border-color:var(--accent3)}
+.step-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;transition:color .15s}
+.step-del-btn:hover{color:var(--danger)}
+.add-step-btn{width:100%;background:transparent;border:1px dashed var(--border);color:var(--muted);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;transition:all .15s;margin-top:4px}
+.add-step-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+.modal-actions{display:flex;gap:8px;margin-top:20px}
+.modal-save{flex:1;background:var(--accent);color:#000;border:none;border-radius:10px;padding:12px;font-family:'Noto Sans Thai',sans-serif;font-size:14px;font-weight:700;cursor:pointer}
+.modal-save:hover{background:#00e87a}
+.modal-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 20px;font-family:'Noto Sans Thai',sans-serif;font-size:13px;cursor:pointer}
+.modal-cancel:hover{border-color:var(--danger);color:var(--danger)}
+
+/* LOG ENHANCEMENTS */
+.time-preset{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:7px;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Space Mono',monospace;white-space:nowrap}
+.time-preset:hover{border-color:var(--accent);color:var(--accent)}
+.log-gap{display:flex;align-items:center;gap:8px;padding:6px 0;opacity:.7}
+.gap-line{flex:1;height:1px;border-top:1px dashed #2a2a4a}
+.gap-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap}
+.gap-suggest{font-size:11px;color:var(--accent3);cursor:pointer;padding:2px 8px;border:1px solid rgba(124,58,237,.2);border-radius:5px;background:rgba(124,58,237,.06)}
+.gap-suggest:hover{background:rgba(124,58,237,.12)}
+.log-item.retro{border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.04)}
+.log-time.retro-time{color:var(--accent3)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="logo">LIFEFRAME</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('log')" id="tab-log">LOG</button>
-    <button class="nav-tab" onclick="showPage('coach')" id="tab-coach">COACH</button>
-    <button class="nav-tab" onclick="showPage('dash')" id="tab-dash">DASHBOARD</button>
-  </div>
-  <div class="live-badge">
-    <div class="live-dot"></div>
-    <span id="live-time">00:00</span>
-  </div>
-</nav>
-
-<!-- ═══════════ PAGE: LOG ═══════════ -->
-<div class="page active" id="page-log">
-  <div class="card">
-    <div class="card-label">บันทึกกิจกรรม — <span id="today-label"></span></div>
-    <div class="log-area">
-      <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน, ดูยูทูบ..." onkeydown="if(event.key==='Enter')addLog()" autofocus>
-      <button class="log-btn" onclick="addLog()">+ LOG</button>
-    </div>
-    <div class="quick-tags">
-      <button class="tag" onclick="quickLog('นอน')">😴 นอน</button>
-      <button class="tag" onclick="quickLog('กินข้าว')">🍚 กินข้าว</button>
-      <button class="tag" onclick="quickLog('ทำงาน')">💻 ทำงาน</button>
-      <button class="tag" onclick="quickLog('ออกกำลังกาย')">🏃 ออกกำลังกาย</button>
-      <button class="tag" onclick="quickLog('ดูซีรีส์')">📺 ดูซีรีส์</button>
-      <button class="tag" onclick="quickLog('เล่นโทรศัพท์')">📱 เล่นโทรศัพท์</button>
-      <button class="tag" onclick="quickLog('เรียน')">📚 เรียน</button>
-      <button class="tag" onclick="quickLog('ประชุม')">🗣 ประชุม</button>
-    </div>
-  </div>
-
-  <div class="card" id="today-card" style="display:none">
-    <div class="card-label">วันนี้</div>
-    <div class="timeline" id="timeline"></div>
-    <div class="stats-grid" style="margin-top:12px">
-      <div class="stat-box"><div class="stat-num" id="s-count">0</div><div class="stat-label">กิจกรรม</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-span">0h</div><div class="stat-label">ช่วงเวลา</div></div>
-      <div class="stat-box"><div class="stat-num" id="s-top">—</div><div class="stat-label">มากสุด</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ PAGE: COACH ═══════════ -->
-<div class="page" id="page-coach">
-  <div class="phases">
-    <div class="phase-dot active" id="cp1"></div>
-    <div class="phase-dot" id="cp2"></div>
-    <div class="phase-dot" id="cp3"></div>
-  </div>
-
-  <div id="coach-analyze-section">
-    <div class="card">
-      <div class="card-label">Phase 01 — Analyze</div>
-      <div class="section-title">วิเคราะห์พฤติกรรมของฉัน</div>
-      <div class="section-sub" id="coach-data-info">กำลังโหลดข้อมูล...</div>
-      <button class="analyze-btn" id="analyze-btn" onclick="startAnalysis()" disabled>
-        ◆ วิเคราะห์พฤติกรรมของฉัน
-      </button>
-      <p class="tip">* ต้องมีข้อมูลอย่างน้อย 5 กิจกรรม</p>
-    </div>
-  </div>
-
-  <div id="coach-analysis-section" class="hidden">
-    <div class="card">
-      <div class="card-label">Phase 02 — Insight</div>
-      <div class="ai-bubble"><div class="ai-text" id="analysis-text"></div></div>
-    </div>
-    <div class="card" id="goal-card">
-      <div class="card-label">Phase 02 — Goal</div>
-      <div class="section-title">🎯 เป้าหมายชีวิตของคุณคืออะไร?</div>
-      <textarea class="goal-input" id="goal-input" placeholder="เช่น: อยากเป็น developer มีรายได้ 100k/เดือน..."></textarea>
-      <button class="submit-btn" id="submit-goal-btn" onclick="analyzeGoal()">บอกฉันตรงๆ เลย →</button>
-    </div>
-  </div>
-
-  <div id="coach-verdict-section" class="hidden">
-    <div class="card">
-      <div class="card-label">Phase 03 — Verdict</div>
-      <div class="ai-bubble"><div class="ai-text" id="verdict-text"></div></div>
-    </div>
-    <div class="card hidden" id="mode-card">
-      <div class="card-label">เลือก Mode</div>
-      <div class="mode-grid">
-        <button class="mode-btn" id="mode-goal" onclick="selectMode('goal')">
-          <div class="mode-icon">🚀</div>
-          <div class="mode-name">GOAL-ORIENTED</div>
-          <div class="mode-desc">ปรับ lifestyle แบบสุดโต่ง ไปให้ถึงเป้าหมายเร็วที่สุด</div>
-        </button>
-        <button class="mode-btn" id="mode-1pct" onclick="selectMode('1pct')">
-          <div class="mode-icon">📈</div>
-          <div class="mode-name">1% BETTER</div>
-          <div class="mode-desc">ปรับ 50-60% สมดุลระหว่างชีวิตและเป้าหมาย</div>
-        </button>
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">LIFEFRAME</div>
+    <div class="profile-area">
+      <div class="avatar" id="sb-avatar">M</div>
+      <div>
+        <div class="profile-name" id="sb-name">Mook</div>
+        <div class="profile-edit" onclick="toggleNameEdit()">✎ แก้ชื่อ</div>
       </div>
     </div>
-    <div class="card hidden" id="plan-card">
-      <div class="card-label">แผนของคุณ</div>
-      <div class="ai-bubble"><div class="ai-text" id="plan-text"></div></div>
+    <div class="name-edit-area" id="name-edit-area">
+      <input class="name-edit-input" id="name-edit-input" placeholder="ชื่อใหม่..." onkeydown="if(event.key==='Enter')saveName()">
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-label">เมนู</div>
+    <div class="nav-item active" id="nav-log" onclick="showPage('log');closeSidebar()">📝 &nbsp;บันทึกกิจกรรม</div>
+    <div class="nav-item" id="nav-todo" onclick="showPage('todo');closeSidebar()">✅ &nbsp;Daily Planner</div>
+    <div class="nav-item" id="nav-dash" onclick="showPage('dash');closeSidebar()">📊 &nbsp;Dashboard</div>
+    <div class="nav-item" id="nav-coach" onclick="showPage('coach');closeSidebar()">🎯 &nbsp;AI Coach</div>
+  </div>
+  <div class="quick-log-section">
+    <div class="quick-log-title">LOG ที่ใช้บ่อย</div>
+    <div class="custom-tags" id="custom-tags-sidebar"></div>
+    <div class="add-tag-area">
+      <input class="add-tag-input" id="new-tag-input" placeholder="+ เพิ่ม tag..." onkeydown="if(event.key==='Enter')addCustomTag()">
+      <button class="add-tag-btn" onclick="addCustomTag()">+</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════ PAGE: DASHBOARD ═══════════ -->
+<nav class="topnav">
+  <button class="menu-btn" onclick="openSidebar()">☰</button>
+  <div class="topnav-logo">LIFEFRAME</div>
+  <div class="topnav-tabs">
+    <button class="topnav-tab active" id="tab-log" onclick="showPage('log')">LOG</button>
+    <button class="topnav-tab" id="tab-todo" onclick="showPage('todo')">PLANNER</button>
+    <button class="topnav-tab" id="tab-dash" onclick="showPage('dash')">DASH</button>
+    <button class="topnav-tab" id="tab-coach" onclick="showPage('coach')">COACH</button>
+  </div>
+  <div class="live-badge"><div class="live-dot"></div><span id="live-time">00:00</span></div>
+</nav>
+
+<!-- LOG PAGE -->
+<div class="page active" id="page-log">
+  <div class="std-page">
+    <div class="card">
+      <div class="card-label">บันทึกกิจกรรม</div>
+      <div class="section-title">ทำอะไรอยู่?</div>
+      <div class="section-sub">พิมพ์สั้นๆ หรือกด tag • ย้อนเวลาได้</div>
+      <div class="log-area" style="flex-wrap:wrap;gap:8px">
+        <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน..." onkeydown="if(event.key==='Enter')addLog()" style="flex:1;min-width:160px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="time" id="log-time-input" class="log-input" style="width:100px;flex:none;font-family:'Space Mono',monospace;font-size:13px">
+          <button class="log-btn" onclick="addLog()">+ LOG</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace">เวลา:</span>
+        <button class="time-preset" onclick="setTimePreset(0)">ตอนนี้</button>
+        <button class="time-preset" onclick="setTimePreset(-30)">30 นาทีก่อน</button>
+        <button class="time-preset" onclick="setTimePreset(-60)">1 ชม.ก่อน</button>
+        <button class="time-preset" onclick="setTimePreset(-120)">2 ชม.ก่อน</button>
+      </div>
+      <div class="all-tags" id="all-tags">
+        <button class="tag" onclick="quickLog('😴 นอน')">😴 นอน</button>
+        <button class="tag" onclick="quickLog('🍚 กินข้าว')">🍚 กินข้าว</button>
+        <button class="tag" onclick="quickLog('💻 ทำงานประจำ')">💻 ทำงานประจำ</button>
+        <button class="tag" onclick="quickLog('🏃 ออกกำลังกาย')">🏃 ออกกำลังกาย</button>
+        <button class="tag" onclick="quickLog('📚 อ่านหนังสือ')">📚 อ่านหนังสือ</button>
+        <button class="tag" onclick="quickLog('🗣 เรียนภาษาอังกฤษ')">🗣 เรียนภาษาอังกฤษ</button>
+        <button class="tag" onclick="quickLog('📱 เล่นโทรศัพท์')">📱 เล่นโทรศัพท์</button>
+      </div>
+    </div>
+
+    <!-- Notification settings -->
+    <div class="card" id="notif-card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="card-label" style="margin-bottom:4px">แจ้งเตือน</div>
+          <div style="font-size:12px;color:var(--muted)" id="notif-status">ปิดอยู่</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="notif-interval" class="log-input" style="width:auto;padding:6px 10px;font-size:12px">
+            <option value="30">ทุก 30 นาที</option>
+            <option value="60" selected>ทุก 1 ชั่วโมง</option>
+            <option value="120">ทุก 2 ชั่วโมง</option>
+            <option value="180">ทุก 3 ชั่วโมง</option>
+          </select>
+          <button class="log-btn" id="notif-btn" onclick="toggleNotif()" style="padding:8px 14px;font-size:11px">เปิด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline with gaps -->
+    <div class="card" id="today-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-label" style="margin:0">timeline วันนี้</div>
+        <div id="gap-alert" style="display:none;font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace"></div>
+      </div>
+      <div class="timeline" id="timeline">
+        <div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:'Space Mono',monospace">— ยังไม่มี log วันนี้ —</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLANNER PAGE -->
+<div class="page" id="page-todo">
+  <div class="planner-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 8px">
+      <div>
+        <div style="font-size:18px;font-weight:700">Daily Planner</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">กด →วัน เพื่อเลื่อนงานไปวันถัดไป</div>
+      </div>
+      <button class="add-todo-btn" onclick="openTodoModal()">+ เพิ่มงาน</button>
+    </div>
+    <div id="planner-body"></div>
+  </div>
+</div>
+
+<!-- DASH PAGE -->
 <div class="page" id="page-dash">
-  <!-- Year nav -->
-  <div class="dash-header">
-    <div class="dash-title">📊 Dashboard</div>
-    <div class="year-nav">
-      <button class="year-btn" onclick="changeYear(-1)">‹</button>
-      <span class="year-label" id="dash-year">2025</span>
-      <button class="year-btn" onclick="changeYear(1)">›</button>
+  <div class="std-page">
+    <!-- Month nav -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px">
+      <div>
+        <div style="font-size:18px;font-weight:700">Dashboard</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="dash-month-label">เดือนนี้</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="row-btn" onclick="changeMonth(-1)">◀</button>
+        <button class="row-btn" onclick="changeMonth(0)" style="color:var(--accent)">วันนี้</button>
+        <button class="row-btn" onclick="changeMonth(1)">▶</button>
+      </div>
+    </div>
+
+    <!-- Donut chart card -->
+    <div class="card">
+      <div class="card-label">สัดส่วนกิจกรรม</div>
+      <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+        <div style="position:relative;flex-shrink:0">
+          <canvas id="donut-canvas" width="180" height="180"></canvas>
+          <div id="donut-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+            <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)" id="donut-total">0</div>
+            <div style="font-size:10px;color:var(--muted)">บันทึก</div>
+          </div>
+        </div>
+        <div id="legend" style="flex:1;display:flex;flex-direction:column;gap:7px;min-width:160px"></div>
+      </div>
+    </div>
+
+    <!-- Category manager -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-label" style="margin:0">จัดการหมวดหมู่</div>
+        <button class="day-add" onclick="openCatModal()">+ เพิ่มหมวดหมู่</button>
+      </div>
+      <div id="cat-list" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
   </div>
+</div>
 
-  <!-- Monthly overview -->
-  <div class="card">
-    <div class="card-label">รายเดือน — คลิกเดือนเพื่อดูรายละเอียด</div>
-    <div class="month-grid" id="month-grid"></div>
-  </div>
-
-  <!-- Category breakdown for selected month -->
-  <div class="card" id="month-detail-card" style="display:none">
-    <div class="card-label" id="month-detail-label">สัดส่วนเวลา</div>
-    <div class="cat-breakdown" id="cat-breakdown"></div>
-  </div>
-
-  <!-- Day grid for current month only -->
-  <div class="card" id="day-grid-card" style="display:none">
-    <div class="card-label" id="day-grid-label">รายวัน</div>
-    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px">
-      <div class="day-label">อา</div><div class="day-label">จ</div><div class="day-label">อ</div>
-      <div class="day-label">พ</div><div class="day-label">พฤ</div><div class="day-label">ศ</div><div class="day-label">ส</div>
+<!-- COACH PAGE -->
+<div class="page" id="page-coach">
+  <div class="std-page">
+    <div class="card">
+      <div class="card-label">AI Coach</div>
+      <div class="section-title">🎯 วิเคราะห์เป้าหมาย</div>
+      <div class="section-sub" style="margin-top:8px">จะ unlock หลังใช้งานครบ 7 วัน</div>
     </div>
-    <div class="day-grid" id="day-grid"></div>
   </div>
+</div>
 
-  <!-- Selected day logs -->
-  <div class="card" id="day-detail-card" style="display:none">
-    <div class="card-label" id="day-detail-label">Log ของวันนี้</div>
-    <div class="day-log-list" id="day-log-list"></div>
+<!-- TODO MODAL -->
+<div id="todo-modal">
+  <div class="modal-box">
+    <div class="modal-title">◆ เพิ่มงานใหม่</div>
+    <div class="modal-field"><label class="modal-label">ชื่องาน</label><input class="modal-input" id="todo-title-input" placeholder="เช่น: ประชุมทีม"></div>
+    <div class="modal-field">
+      <label class="modal-label">ขั้นตอน</label>
+      <div class="steps-editor" id="steps-editor">
+        <div class="step-input-row"><input class="step-input" placeholder="ขั้นตอนที่ 1..."><button class="step-del-btn" onclick="removeStep(this)">✕</button></div>
+      </div>
+      <button class="add-step-btn" onclick="addStepInput()">+ เพิ่มขั้นตอน</button>
+    </div>
+    <div class="modal-field"><label class="modal-label">วันที่จะทำ</label><input class="modal-input" type="date" id="todo-date-input" style="color-scheme:dark"></div>
+    <div class="modal-field"><label class="modal-label">ลิงก์ (ถ้ามี)</label><input class="modal-input" id="todo-link-input" placeholder="https://..."></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeTodoModal()">ยกเลิก</button>
+      <button class="modal-save" onclick="saveTodo()">บันทึก →</button>
+    </div>
   </div>
+</div>
 
-  <div class="empty-state hidden" id="dash-empty">
-    <div class="empty-icon">📭</div>
-    <div>ยังไม่มีข้อมูลในปีนี้<br>เริ่ม log กิจกรรมได้เลย!</div>
+<!-- CAT MODAL -->
+<div id="cat-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-title">◆ เพิ่มหมวดหมู่ใหม่</div>
+    <div class="modal-field"><label class="modal-label">ชื่อหมวดหมู่</label><input class="modal-input" id="cat-name-input" placeholder="เช่น: ท่องเที่ยว"></div>
+    <div class="modal-field">
+      <label class="modal-label">สี</label>
+      <div id="color-picker" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
+    </div>
+    <div class="modal-field"><label class="modal-label">คำสำคัญ (คั่นด้วยจุลภาค)</label><input class="modal-input" id="cat-keywords-input" placeholder="เช่น: เที่ยว,ทะเล,ภูเขา"></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeCatModal()">ยกเลิก</button>
+      <button class="modal-save" onclick="saveCat()">บันทึก →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title">✎ แก้ไขงาน</div>
+    <div class="modal-field"><label class="modal-label">ชื่องาน</label><input class="modal-input" id="edit-title-input" placeholder="ชื่องาน"></div>
+    <div class="modal-field">
+      <label class="modal-label">ขั้นตอน</label>
+      <div id="edit-steps-list"></div>
+      <button class="add-step-btn" onclick="addEditStep()" style="margin-top:6px">+ เพิ่มขั้นตอน</button>
+    </div>
+    <div class="modal-field"><label class="modal-label">วันที่จะทำ</label><input class="modal-input" type="date" id="edit-date-input" style="color-scheme:dark"></div>
+    <div class="modal-field"><label class="modal-label">ลิงก์ (ถ้ามี)</label><input class="modal-input" id="edit-link-input" placeholder="https://..."></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeEditModal()">ยกเลิก</button>
+      <button class="modal-save" onclick="saveEdit()">บันทึก →</button>
+    </div>
   </div>
 </div>
 
 <script>
+// ── HELPERS ──
+function todayStr(){const d=new Date();return d.toISOString().slice(0,10);}
+function addDays(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function formatThai(ds){const p=ds.split('-');const m=["","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];return `${+p[2]} ${m[+p[1]]} ${+p[0]+543}`;}
+function dayOfWeek(ds){return ["อา","จ","อ","พ","พฤ","ศ","ส"][new Date(ds+'T00:00:00').getDay()];}
+function getTime(){return new Date().toTimeString().slice(0,5);}
 
-
-const MODEL = "claude-sonnet-4-20250514";
-const STORAGE_KEY = "lifeframe_logs";
-
-// ── STORAGE ──
-function loadAllLogs() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-
-function saveAllLogs(all) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-}
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-}
-
-function getTodayLogs() {
-  return loadAllLogs()[todayKey()] || [];
-}
-
-function saveTodayLogs(logs) {
-  const all = loadAllLogs();
-  all[todayKey()] = logs;
-  saveAllLogs(all);
-}
-
-// ── CATEGORIES ──
-const CAT_COLORS = {
-  "นอนหลับ": "#6366f1", "อาหาร": "#f59e0b", "งาน": "#00ff88",
-  "พัฒนาตัวเอง": "#06b6d4", "สุขภาพ": "#10b981", "บันเทิง": "#f43f5e", "สังคม": "#a78bfa", "อื่นๆ": "#5a5a7a"
-};
-
-const CAT_PATTERNS = {
-  "นอน|หลับ": "นอนหลับ",
-  "กิน|ข้าว|อาหาร|กาแฟ|ชา": "อาหาร",
-  "ทำงาน|งาน|โค้ด|เขียน|ออกแบบ": "งาน",
-  "เรียน|อ่าน|ดูคอร์ส|ฝึก": "พัฒนาตัวเอง",
-  "ออกกำลัง|วิ่ง|ยิม|กีฬา": "สุขภาพ",
-  "ดู|ซีรีส์|หนัง|ยูทูบ|Netflix|เล่นเกม|โทรศัพท์": "บันเทิง",
-  "ประชุม|คุย|โทร": "สังคม"
-};
-
-function getCategory(text) {
-  for (const [p, c] of Object.entries(CAT_PATTERNS))
-    if (new RegExp(p, "i").test(text)) return c;
-  return "อื่นๆ";
-}
+// ── STATE ──
+let userName = 'Mook';
+let customTags = ['🧘 Meditation','☕ กาแฟ','🎮 เล่นเกม'];
+let todayLogs = [];
+const T = todayStr();
+let todos = [
+  {id:1,title:"Deploy LIFEFRAME",steps:[{text:"เชื่อม Claude API",done:false},{text:"Deploy Vercel",done:false}],link:"https://vercel.com",date:T},
+  {id:2,title:"เรียน JavaScript",steps:[{text:"อ่านบท Array",done:true},{text:"ทำ exercise",done:false}],link:"",date:T},
+  {id:3,title:"วางแผนเดือนหน้า",steps:[{text:"สรุปงานเดือนนี้",done:false},{text:"ตั้งเป้าหมายใหม่",done:false}],link:"",date:addDays(T,1)},
+  {id:4,title:"ซื้อของใช้",steps:[{text:"ทำ list ก่อน",done:false}],link:"",date:addDays(T,1)},
+  {id:5,title:"ออกกำลังกาย",steps:[{text:"วิ่ง 30 นาที",done:false}],link:"",date:addDays(T,2)},
+  {id:6,title:"โทรหาหมอ",steps:[{text:"นัดคิว",done:true}],link:"",date:addDays(T,-1)},
+  {id:7,title:"ส่งรายงาน",steps:[{text:"เขียนสรุป",done:true},{text:"ส่ง email",done:false}],link:"",date:addDays(T,-2)}
+];
 
 // ── CLOCK ──
-function updateClock() {
-  document.getElementById("live-time").textContent = new Date().toTimeString().slice(0, 5);
-}
-setInterval(updateClock, 1000); updateClock();
+setInterval(()=>{document.getElementById('live-time').textContent=new Date().toTimeString().slice(0,5);},1000);
+document.getElementById('live-time').textContent=getTime();
 
-function getTime() { return new Date().toTimeString().slice(0, 5); }
+// ── SIDEBAR ──
+function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').style.display='block';}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').style.display='none';}
+function toggleNameEdit(){
+  const a=document.getElementById('name-edit-area');
+  if(a.style.display==='block'){a.style.display='none';}
+  else{a.style.display='block';document.getElementById('name-edit-input').value=userName;document.getElementById('name-edit-input').focus();}
+}
+function saveName(){
+  const v=document.getElementById('name-edit-input').value.trim();if(!v)return;
+  userName=v;
+  document.getElementById('sb-name').textContent=v;
+  document.getElementById('sb-avatar').textContent=v[0].toUpperCase();
+  document.getElementById('name-edit-area').style.display='none';
+}
 
 // ── NAV ──
-function showPage(p) {
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('page-' + p).classList.add('active');
-  document.getElementById('tab-' + p).classList.add('active');
-  if (p === 'dash') renderDashboard();
-  if (p === 'coach') updateCoachDataInfo();
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.topnav-tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('tab-'+p).classList.add('active');
+  const n=document.getElementById('nav-'+p);if(n)n.classList.add('active');
+  if(p==='todo')renderPlanner();
+  if(p==='dash')renderDash();
 }
 
-// ── LOG PAGE ──
-let todayLogs = getTodayLogs();
+// ── CUSTOM TAGS ──
+function renderCustomTags(){
+  document.getElementById('custom-tags-sidebar').innerHTML=customTags.map((t,i)=>
+    `<div class="ctag" onclick="quickLogFromSidebar('${t}')">${t}<span class="del" onclick="event.stopPropagation();removeCustomTag(${i})">✕</span></div>`
+  ).join('');
+  document.querySelectorAll('.tag.custom').forEach(el=>el.remove());
+  const wrap=document.getElementById('all-tags');
+  customTags.forEach(t=>{const b=document.createElement('button');b.className='tag custom';b.textContent=t;b.onclick=()=>quickLog(t);wrap.appendChild(b);});
+}
+function addCustomTag(){const inp=document.getElementById('new-tag-input');const v=inp.value.trim();if(!v)return;customTags.push(v);inp.value='';renderCustomTags();}
+function removeCustomTag(i){customTags.splice(i,1);renderCustomTags();}
+function quickLogFromSidebar(t){document.getElementById('log-input').value=t;setTimePreset(0);addLog();showPage('log');closeSidebar();}
 
-function quickLog(t) { document.getElementById("log-input").value = t; addLog(); }
+// ── LOG ──
 
-function addLog() {
-  const inp = document.getElementById("log-input");
-  const text = inp.value.trim(); if (!text) return;
-  todayLogs.push({ time: getTime(), text, id: Date.now() });
-  saveTodayLogs(todayLogs);
-  inp.value = ""; inp.focus();
-  renderToday();
+function quickLog(t){document.getElementById('log-input').value=t;addLog();}
+function addLog(){
+  const inp=document.getElementById('log-input');const txt=inp.value.trim();if(!txt)return;
+  todayLogs.push({time:getTime(),text:txt,id:Date.now()});inp.value='';inp.focus();renderToday();
+}
+function deleteLog(id){todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
+function renderToday(){
+  const card=document.getElementById('today-card');
+  if(!todayLogs.length){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('timeline').innerHTML=todayLogs.slice(-10).reverse().map(l=>
+    `<div class="log-item"><span class="log-time">${l.time}</span><span class="log-text">${l.text}</span><span class="log-cat">${getCat(l.text)}</span><button class="log-del" onclick="deleteLog(${l.id})">✕</button></div>`
+  ).join('');
 }
 
-function deleteLog(id) {
-  todayLogs = todayLogs.filter(l => l.id !== id);
-  saveTodayLogs(todayLogs);
-  renderToday();
+// ── PLANNER ──
+let dragTodoId = null;
+
+function renderBoard(){renderPlanner();}
+
+function renderPlanner(){
+  const body = document.getElementById('planner-body'); if(!body) return;
+  const today = todayStr();
+  const dates = []; for(let i=-2;i<=5;i++) dates.push(addDays(today,i));
+  const grouped = {}; todos.forEach(t=>{ if(!grouped[t.date]) grouped[t.date]=[]; grouped[t.date].push(t); });
+
+  body.innerHTML = dates.map(date => {
+    const isPast = date<today, isToday = date===today;
+    const items = grouped[date]||[];
+    if(isPast && !items.length) return '';
+    const done = items.filter(t=>t.steps.length&&t.steps.every(s=>s.done)).length;
+    const dayLabel = isToday?'วันนี้':isPast?`${dayOfWeek(date)} (ที่ผ่านมา)`:dayOfWeek(date);
+
+    return `<div class="day-section ${isPast?'past-section':''}" id="day-${date}"
+        ondragover="onDayDragOver(event,'${date}')"
+        ondrop="onDayDrop(event,'${date}')"
+        ondragleave="onDayDragLeave(event,'${date}')">
+      <div class="day-header">
+        <div class="day-name" style="color:${isToday?'var(--accent)':isPast?'var(--muted)':'var(--text)'}">${dayLabel}</div>
+        <div class="day-sub">${formatThai(date)}</div>
+        ${isToday?'<span class="day-badge today">TODAY</span>':''}
+        ${isPast&&items.length?'<span class="day-badge past">ค้าง</span>':''}
+        <span class="day-count">${done}/${items.length}</span>
+        <button class="day-add" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
+      </div>
+      <div class="day-drop-hint">วางงานที่นี่เพื่อย้ายมาวัน ${formatThai(date)}</div>
+      ${items.length===0?`<div style="color:var(--muted);font-size:12px;padding:10px 4px;font-family:'Space Mono',monospace">— ไม่มีงาน —</div>`:''}
+      ${items.map((todo,idx) => {
+        const allDone = todo.steps.length&&todo.steps.every(s=>s.done);
+        const pct = todo.steps.length ? Math.round(todo.steps.filter(s=>s.done).length/todo.steps.length*100) : 0;
+        return `<div class="todo-row ${allDone?'all-done':''}" id="row-${todo.id}"
+            draggable="true"
+            ondragstart="onRowDragStart(event,${todo.id})"
+            ondragend="onRowDragEnd()"
+            ondragover="onRowDragOver(event,${todo.id})"
+            ondrop="onRowDrop(event,${todo.id},'${date}')"
+            ondragleave="onRowDragLeave(event,${todo.id})">
+          <div class="row-top">
+            <span class="drag-handle" title="ลากเพื่อเรียงลำดับ">⠿</span>
+            <div class="row-title">${todo.title}</div>
+            <div class="row-actions">
+              <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
+              ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">→วันนี้</button>`:''}
+              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">→วัน</button>`:''}
+              <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
+            </div>
+          </div>
+          ${todo.steps.length?`<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}
+          <div class="row-steps">${todo.steps.map((s,si)=>`
+            <div class="row-step ${s.done?'chk':''}" onclick="toggleStep(${todo.id},${si})">
+              <div class="row-step-box">${s.done?'✓':''}</div>
+              <span>${s.text}</span>
+            </div>`).join('')}</div>
+          ${todo.link?`<div class="row-footer"><a class="row-link" href="${todo.link}" target="_blank">↗ เปิดลิงก์</a></div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
 }
 
-function renderToday() {
-  const card = document.getElementById("today-card");
-  if (todayLogs.length === 0) { card.style.display = "none"; return; }
-  card.style.display = "block";
+function toggleStep(id,si){const t=todos.find(t=>t.id===id);if(t){t.steps[si].done=!t.steps[si].done;renderPlanner();}}
+function moveCard(id,date){const t=todos.find(t=>t.id===id);if(t){t.date=date;renderPlanner();}}
+function deleteTodo(id){todos=todos.filter(t=>t.id!==id);renderPlanner();}
 
-  document.getElementById("timeline").innerHTML = todayLogs.slice(-10).reverse().map(l => `
-    <div class="log-item">
-      <span class="log-time">${l.time}</span>
-      <span class="log-text">${l.text}</span>
-      <span class="log-cat">${getCategory(l.text)}</span>
-      <button class="log-del" onclick="deleteLog(${l.id})">✕</button>
-    </div>`).join("");
-
-  document.getElementById("s-count").textContent = todayLogs.length;
-  if (todayLogs.length >= 2) {
-    const a = todayLogs[0].time.split(":").map(Number);
-    const b = todayLogs[todayLogs.length-1].time.split(":").map(Number);
-    const diff = (b[0]*60+b[1]) - (a[0]*60+a[1]);
-    document.getElementById("s-span").textContent = Math.max(0, (diff/60).toFixed(1)) + "h";
-  }
-  const freq = {}; todayLogs.forEach(l => { const c = getCategory(l.text); freq[c]=(freq[c]||0)+1; });
-  const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
-  if (top) document.getElementById("s-top").textContent = top[0].slice(0, 4);
+// ── DRAG ──
+function onRowDragStart(e,id){
+  dragTodoId=id;
+  setTimeout(()=>{const el=document.getElementById('row-'+id);if(el)el.classList.add('dragging');},0);
+}
+function onRowDragEnd(){
+  dragTodoId=null;
+  document.querySelectorAll('.todo-row').forEach(el=>el.classList.remove('dragging','drag-over-top','drag-over-bot'));
+  document.querySelectorAll('.day-section').forEach(el=>el.classList.remove('day-drag-over'));
+}
+function onRowDragOver(e,id){
+  e.preventDefault(); e.stopPropagation();
+  if(dragTodoId===id) return;
+  const el=document.getElementById('row-'+id); if(!el) return;
+  const rect=el.getBoundingClientRect();
+  const mid=rect.top+rect.height/2;
+  document.querySelectorAll('.todo-row').forEach(r=>r.classList.remove('drag-over-top','drag-over-bot'));
+  el.classList.add(e.clientY<mid?'drag-over-top':'drag-over-bot');
+}
+function onRowDragLeave(e,id){
+  const el=document.getElementById('row-'+id);if(el)el.classList.remove('drag-over-top','drag-over-bot');
+}
+function onRowDrop(e,targetId,date){
+  e.preventDefault(); e.stopPropagation();
+  if(dragTodoId===null||dragTodoId===targetId) return;
+  const src=todos.find(t=>t.id===dragTodoId); if(!src) return;
+  const targetEl=document.getElementById('row-'+targetId);
+  const rect=targetEl?targetEl.getBoundingClientRect():null;
+  const insertBefore=rect&&e.clientY<rect.top+rect.height/2;
+  // Move src to same date
+  src.date=date;
+  // Reorder
+  todos=todos.filter(t=>t.id!==dragTodoId);
+  const tIdx=todos.findIndex(t=>t.id===targetId);
+  todos.splice(insertBefore?tIdx:tIdx+1,0,src);
+  dragTodoId=null;
+  renderPlanner();
+}
+function onDayDragOver(e,date){
+  e.preventDefault();
+  const sec=document.getElementById('day-'+date);if(sec)sec.classList.add('day-drag-over');
+}
+function onDayDragLeave(e,date){
+  const sec=document.getElementById('day-'+date);if(!sec)return;
+  if(!sec.contains(e.relatedTarget))sec.classList.remove('day-drag-over');
+}
+function onDayDrop(e,date){
+  e.stopPropagation();
+  const sec=document.getElementById('day-'+date);if(sec)sec.classList.remove('day-drag-over');
+  if(dragTodoId===null)return;
+  moveCard(dragTodoId,date);
+  dragTodoId=null;
 }
 
-// Init today label
-const now = new Date();
-const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-document.getElementById("today-label").textContent = `${now.getDate()} ${THAI_MONTHS[now.getMonth()]} ${now.getFullYear()+543}`;
-renderToday();
-
-// ── COACH PAGE ──
-let goalText = "";
-
-function updateCoachDataInfo() {
-  const all = loadAllLogs();
-  const total = Object.values(all).reduce((s, arr) => s + arr.length, 0);
-  const days = Object.keys(all).length;
-  const el = document.getElementById("coach-data-info");
-  el.textContent = total >= 5
-    ? `มีข้อมูล ${total} กิจกรรม จาก ${days} วัน พร้อมวิเคราะห์แล้ว!`
-    : `มีข้อมูล ${total} กิจกรรม — ต้องการอีก ${5-total} กิจกรรม`;
-  document.getElementById("analyze-btn").disabled = total < 5;
+// ── EDIT MODAL ──
+let editingId=null;
+function openEditModal(id){
+  const t=todos.find(t=>t.id===id); if(!t) return;
+  editingId=id;
+  document.getElementById('edit-title-input').value=t.title;
+  document.getElementById('edit-date-input').value=t.date;
+  document.getElementById('edit-link-input').value=t.link||'';
+  renderEditSteps(t.steps);
+  document.getElementById('edit-modal').classList.add('open');
+}
+function renderEditSteps(steps){
+  document.getElementById('edit-steps-list').innerHTML=steps.map((s,i)=>`
+    <div class="edit-step-row">
+      <input type="checkbox" class="edit-step-done" ${s.done?'checked':''} onchange="toggleEditStepDone(${i})">
+      <input class="edit-step-input" value="${s.text.replace(/"/g,'&quot;')}" oninput="updateEditStep(${i},this.value)" placeholder="ขั้นตอน...">
+      <button class="step-del-btn" onclick="removeEditStep(${i})">✕</button>
+    </div>`).join('');
+}
+function toggleEditStepDone(i){
+  const t=todos.find(t=>t.id===editingId);if(!t)return;
+  t.steps[i].done=!t.steps[i].done;
+  renderEditSteps(t.steps);
+}
+function updateEditStep(i,val){
+  const t=todos.find(t=>t.id===editingId);if(t)t.steps[i].text=val;
+}
+function removeEditStep(i){
+  const t=todos.find(t=>t.id===editingId);if(!t)return;
+  t.steps.splice(i,1);renderEditSteps(t.steps);
+}
+function addEditStep(){
+  const t=todos.find(t=>t.id===editingId);if(!t)return;
+  t.steps.push({text:'',done:false});
+  renderEditSteps(t.steps);
+  const inputs=document.querySelectorAll('.edit-step-input');
+  if(inputs.length)inputs[inputs.length-1].focus();
+}
+function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');editingId=null;}
+function saveEdit(){
+  const t=todos.find(t=>t.id===editingId);if(!t)return;
+  t.title=document.getElementById('edit-title-input').value.trim()||t.title;
+  t.date=document.getElementById('edit-date-input').value||t.date;
+  t.link=document.getElementById('edit-link-input').value.trim();
+  // steps already updated live
+  t.steps=t.steps.filter(s=>s.text.trim());
+  closeEditModal();renderPlanner();
 }
 
-function setCoachPhase(n) {
-  for (let i = 1; i <= 3; i++) {
-    const d = document.getElementById(`cp${i}`);
-    d.className = "phase-dot" + (i < n ? " done" : i === n ? " active" : "");
-  }
+// ── MODAL ──
+let modalDate=null;
+function openTodoModal(date){
+  modalDate=date||todayStr();
+  document.getElementById('todo-title-input').value='';
+  document.getElementById('todo-link-input').value='';
+  document.getElementById('todo-date-input').value=modalDate;
+  document.getElementById('steps-editor').innerHTML=`<div class="step-input-row"><input class="step-input" placeholder="ขั้นตอนที่ 1..."><button class="step-del-btn" onclick="removeStep(this)">✕</button></div>`;
+  document.getElementById('todo-modal').classList.add('open');
+  document.getElementById('todo-title-input').focus();
 }
-
-async function callClaude(sys, user) {
-  const res = await fetch("/api/claude", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ model: MODEL, max_tokens: 1000, system: sys, messages: [{ role: "user", content: user }] })
-  });
-  const d = await res.json();
-  return d.content?.[0]?.text || "เกิดข้อผิดพลาด";
+function closeTodoModal(){document.getElementById('todo-modal').classList.remove('open');}
+function addStepInput(){
+  const ed=document.getElementById('steps-editor');const n=ed.children.length+1;
+  const d=document.createElement('div');d.className='step-input-row';
+  d.innerHTML=`<input class="step-input" placeholder="ขั้นตอนที่ ${n}..."><button class="step-del-btn" onclick="removeStep(this)">✕</button>`;
+  ed.appendChild(d);d.querySelector('input').focus();
 }
-
-async function streamText(id, text, speed = 16) {
-  const el = document.getElementById(id);
-  el.classList.add("streaming"); el.textContent = "";
-  for (const c of text.split("")) {
-    el.textContent += c;
-    await new Promise(r => setTimeout(r, speed));
-  }
-  el.classList.remove("streaming");
-}
-
-async function startAnalysis() {
-  document.getElementById("analyze-btn").disabled = true;
-  document.getElementById("coach-analysis-section").classList.remove("hidden");
-  setCoachPhase(2);
-  document.getElementById("analysis-text").textContent = "กำลังวิเคราะห์...";
-  document.getElementById("analysis-text").classList.add("streaming");
-
-  const all = loadAllLogs();
-  const recentDays = Object.entries(all).sort().slice(-7);
-  const summary = recentDays.map(([d, logs]) => `${d}:\n` + logs.map(l => `  ${l.time} — ${l.text}`).join("\n")).join("\n\n");
-  const catFreq = {};
-  Object.values(all).flat().forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
-
-  try {
-    const r = await callClaude(
-      "คุณเป็น Life Coach AI ที่วิเคราะห์พฤติกรรมอย่างตรงไปตรงมา พูดภาษาไทย ไม่ต้องสวยหรู ให้ตรงประเด็น",
-      `Log 7 วันล่าสุด:\n${summary}\n\nสัดส่วนหมวดหมู่รวม: ${JSON.stringify(catFreq)}\n\nวิเคราะห์รูปแบบพฤติกรรม 3-5 ประโยค แล้วจบด้วยการถามว่า "เป้าหมายชีวิตของคุณคืออะไร? บอกมาได้เลย"`
-    );
-    await streamText("analysis-text", r, 14);
-    document.getElementById("goal-card").classList.remove("hidden");
-  } catch(e) {
-    document.getElementById("analysis-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
-    document.getElementById("analysis-text").classList.remove("streaming");
-  }
-}
-
-async function analyzeGoal() {
-  const goal = document.getElementById("goal-input").value.trim();
-  if (!goal) return;
-  goalText = goal;
-  const btn = document.getElementById("submit-goal-btn");
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> กำลังวิเคราะห์...';
-
-  document.getElementById("coach-verdict-section").classList.remove("hidden");
-  setCoachPhase(3);
-  document.getElementById("verdict-text").textContent = "กำลังประเมิน...";
-  document.getElementById("verdict-text").classList.add("streaming");
-
-  const all = loadAllLogs();
-  const catFreq = {};
-  Object.values(all).flat().forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
-
-  try {
-    const r = await callClaude(
-      "คุณเป็น Life Coach AI พูดตรงๆ ไม่ปลอบ ไม่ดุ วิเคราะห์จากข้อมูลจริง พูดภาษาไทย",
-      `สัดส่วนเวลา: ${JSON.stringify(catFreq)}\nเป้าหมาย: "${goal}"\n\n1. ด้วยพฤติกรรมปัจจุบัน จะถึงเป้าหมายนี้ต้องใช้เวลาอีกกี่ปี\n2. ทำไมถึงช้าหรือเร็วแค่นั้น\n3. จุดอ่อนที่ชัดเจนที่สุด\n\nจบด้วย: "นี่คือสิ่งที่จะทำให้คุณถึงเป้าหมายเร็วขึ้น — เลือก mode ที่เหมาะกับคุณ"`
-    );
-    await streamText("verdict-text", r, 14);
-    setTimeout(() => document.getElementById("mode-card").classList.remove("hidden"), 400);
-  } catch(e) {
-    document.getElementById("verdict-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
-    document.getElementById("verdict-text").classList.remove("streaming");
-  }
-}
-
-async function selectMode(mode) {
-  document.getElementById("mode-goal").classList.toggle("selected", mode === "goal");
-  document.getElementById("mode-1pct").classList.toggle("selected", mode === "1pct");
-  document.getElementById("plan-card").classList.remove("hidden");
-  document.getElementById("plan-text").textContent = "กำลังสร้างแผน...";
-  document.getElementById("plan-text").classList.add("streaming");
-
-  const all = loadAllLogs();
-  const recent = Object.entries(all).sort().slice(-3).map(([d,logs])=>`${d}: `+logs.map(l=>l.text).join(", ")).join("\n");
-  const modeDesc = mode === "goal"
-    ? "GOAL-ORIENTED: ปรับ lifestyle แบบสุดโต่ง เสียสละ comfort"
-    : "1% BETTER: ปรับ 50-60% ค่อยๆ เปลี่ยน สมดุล";
-
-  try {
-    const r = await callClaude(
-      "คุณเป็น Life Coach ให้แผนปฏิบัติจริง specific กับชีวิต user พูดภาษาไทย",
-      `Log ล่าสุด:\n${recent}\nเป้าหมาย: "${goalText}"\nMode: ${modeDesc}\n\nให้แผนปฏิบัติ 5 ข้อ specific กับ habit จาก log บอกว่าต้องเลิกอะไร เพิ่มอะไร เปลี่ยนอะไร`
-    );
-    await streamText("plan-text", r, 14);
-  } catch(e) {
-    document.getElementById("plan-text").textContent = "ไม่สามารถเชื่อมต่อ AI ได้";
-    document.getElementById("plan-text").classList.remove("streaming");
-  }
+function removeStep(btn){btn.parentElement.remove();}
+function saveTodo(){
+  const title=document.getElementById('todo-title-input').value.trim();if(!title)return alert('ใส่ชื่องานด้วยนะครับ');
+  const steps=[...document.querySelectorAll('#steps-editor .step-input')].map(i=>i.value.trim()).filter(Boolean).map(t=>({text:t,done:false}));
+  const link=document.getElementById('todo-link-input').value.trim();
+  const date=document.getElementById('todo-date-input').value||todayStr();
+  todos.push({id:Date.now(),title,steps,link,date});
+  renderBoard();closeTodoModal();
 }
 
 // ── DASHBOARD ──
+const PALETTE = ['#00ff88','#7c3aed','#ff6b35','#00bfff','#ff4466','#ffd700','#00e5cc','#ff69b4','#a78bfa','#34d399','#f87171','#fb923c'];
+
+let categories = [
+  {id:1, name:'นอน',             color:'#4ade80', keywords:['นอน','หลับ']},
+  {id:2, name:'กิจวัตรประจำวัน', color:'#94a3b8', keywords:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว']},
+  {id:3, name:'ทำงานประจำ',      color:'#22d3ee', keywords:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ']},
+  {id:4, name:'ออกกำลังกาย',     color:'#f472b6', keywords:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga']},
+  {id:5, name:'พัฒนาตัวเอง',     color:'#facc15', keywords:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','ยูทูปพัฒนา','คอร์ส','ฝึก','เรียน']},
+  {id:6, name:'เล่นโทรศัพท์',    color:'#f87171', keywords:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก','instagram','facebook','twitter']},
+];
+let catNextId = 7;
 let dashYear = new Date().getFullYear();
-let selectedMonth = null;
+let dashMonth = new Date().getMonth(); // 0-based
 
-const MONTH_NAMES = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-
-function changeYear(d) {
-  const min = new Date().getFullYear() - 1;
-  const max = new Date().getFullYear();
-  dashYear = Math.max(min, Math.min(max, dashYear + d));
-  document.getElementById("dash-year").textContent = dashYear;
-  selectedMonth = null;
-  renderDashboard();
-}
-
-function renderDashboard() {
-  const all = loadAllLogs();
-  const yearStr = String(dashYear);
-  document.getElementById("dash-year").textContent = dashYear;
-
-  // Check if any data this year
-  const hasData = Object.keys(all).some(k => k.startsWith(yearStr));
-  document.getElementById("dash-empty").classList.toggle("hidden", hasData);
-
-  // Month grid
-  const grid = document.getElementById("month-grid");
-  grid.innerHTML = "";
-  const curMonth = new Date().getMonth();
-  const curYear = new Date().getFullYear();
-
-  for (let m = 0; m < 12; m++) {
-    const monthKey = `${dashYear}-${String(m+1).padStart(2,"0")}`;
-    const monthLogs = Object.entries(all)
-      .filter(([k]) => k.startsWith(monthKey))
-      .flatMap(([,v]) => v);
-
-    const isFuture = dashYear > curYear || (dashYear === curYear && m > curMonth);
-    const isEmpty = monthLogs.length === 0;
-
-    const catFreq = {};
-    monthLogs.forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
-    const total = monthLogs.length;
-
-    const bars = Object.entries(catFreq).sort((a,b)=>b[1]-a[1]).slice(0,5)
-      .map(([c,n]) => `<div class="mini-bar" style="flex:${n};background:${CAT_COLORS[c]||'#5a5a7a'}"></div>`).join("");
-
-    const div = document.createElement("div");
-    div.className = "month-card" + (isEmpty || isFuture ? " empty" : "") + (selectedMonth === m ? " selected" : "");
-    div.innerHTML = `
-      <div class="month-name">${MONTH_NAMES[m]}</div>
-      <div class="month-count">${isFuture ? "—" : total}</div>
-      <div class="month-sub">${isFuture ? "" : total > 0 ? "กิจกรรม" : "ไม่มีข้อมูล"}</div>
-      ${total > 0 ? `<div class="mini-bars">${bars}</div>` : ""}
-    `;
-    if (!isEmpty && !isFuture) div.onclick = () => selectMonth(m);
-    grid.appendChild(div);
-  }
-
-  if (selectedMonth !== null) renderMonthDetail(selectedMonth);
-}
-
-function selectMonth(m) {
-  selectedMonth = m;
-  renderDashboard();
-  renderMonthDetail(m);
-}
-
-function renderMonthDetail(m) {
-  const all = loadAllLogs();
-  const monthKey = `${dashYear}-${String(m+1).padStart(2,"0")}`;
-  const monthLogs = Object.entries(all)
-    .filter(([k]) => k.startsWith(monthKey))
-    .flatMap(([,v]) => v);
-
-  // Category breakdown
-  const catCard = document.getElementById("month-detail-card");
-  catCard.style.display = "block";
-  document.getElementById("month-detail-label").textContent = `สัดส่วนเวลา — ${MONTH_NAMES[m]} ${dashYear}`;
-
-  const catFreq = {};
-  monthLogs.forEach(l => { const c = getCategory(l.text); catFreq[c]=(catFreq[c]||0)+1; });
-  const total = monthLogs.length;
-
-  document.getElementById("cat-breakdown").innerHTML = Object.entries(catFreq)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([c,n]) => {
-      const pct = Math.round(n/total*100);
-      return `<div class="cat-row">
-        <div class="cat-name">${c}</div>
-        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${CAT_COLORS[c]||'#5a5a7a'}"></div></div>
-        <div class="cat-pct">${pct}%</div>
-      </div>`;
-    }).join("");
-
-  // Day grid — only for current/recent month
-  const curYear = new Date().getFullYear();
-  const curMonth = new Date().getMonth();
-  const isCurrentMonth = dashYear === curYear && m === curMonth;
-  const dayGridCard = document.getElementById("day-grid-card");
-
-  dayGridCard.style.display = "block";
-  document.getElementById("day-grid-label").textContent = `รายวัน — ${MONTH_NAMES[m]} ${dashYear}`;
-
-  const daysInMonth = new Date(dashYear, m+1, 0).getDate();
-  const firstDay = new Date(dashYear, m, 1).getDay(); // 0=Sun
-  const dayGrid = document.getElementById("day-grid");
-  dayGrid.innerHTML = "";
-
-  // Empty cells before first day
-  for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement("div");
-    empty.className = "day-cell empty-day";
-    dayGrid.appendChild(empty);
-  }
-
-  const today = new Date().toISOString().slice(0,10);
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateKey = `${dashYear}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const dayLogs = all[dateKey] || [];
-    const isToday = dateKey === today;
-    const isFuture = new Date(dateKey) > new Date();
-
-    const cell = document.createElement("div");
-    cell.className = "day-cell" + (dayLogs.length === 0 ? " empty-day" : "") + (isToday ? " today" : "");
-
-    // Heat color based on activity count
-    const maxLogs = 20;
-    const heat = Math.min(dayLogs.length / maxLogs, 1);
-    if (dayLogs.length > 0) {
-      const topCat = Object.entries(
-        dayLogs.reduce((f,l) => { const c=getCategory(l.text); f[c]=(f[c]||0)+1; return f; }, {})
-      ).sort((a,b)=>b[1]-a[1])[0];
-      const color = CAT_COLORS[topCat?.[0]] || "#00ff88";
-      cell.innerHTML = `<div class="day-heat" style="background:${color};opacity:${0.1+heat*0.3}"></div>`;
+// Generate demo logs for current month
+const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+function generateDemoLogs(){
+  const demos=[
+    {text:'นอน',count:28},{text:'กินข้าว',count:60},{text:'ทำงาน',count:22},
+    {text:'ออกกำลังกาย',count:8},{text:'อ่านหนังสือ',count:5},{text:'เล่นโทรศัพท์',count:18},
+    {text:'หาข้อมูล',count:6},{text:'ทำงานเสริม',count:4}
+  ];
+  const logs=[];
+  const now=new Date();
+  const y=now.getFullYear(),m=now.getMonth();
+  demos.forEach(d=>{
+    for(let i=0;i<d.count;i++){
+      const day=Math.floor(Math.random()*now.getDate())+1;
+      logs.push({text:d.text,date:`${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`});
     }
+  });
+  return logs;
+}
+let allLogs = generateDemoLogs();
 
-    cell.innerHTML += `<div class="day-num">${d}</div><div class="day-dot">${dayLogs.length > 0 ? "●".repeat(Math.min(dayLogs.length,3)) : ""}</div>`;
-
-    if (dayLogs.length > 0) cell.onclick = () => showDayDetail(dateKey, dayLogs, d, m);
-    dayGrid.appendChild(cell);
+function getCategoryForText(text){
+  const lower = text.toLowerCase();
+  for(const cat of categories){
+    if(cat.keywords.some(k=>lower.includes(k.toLowerCase()))) return cat;
   }
+  return null;
 }
 
-function showDayDetail(dateKey, logs, d, m) {
-  const card = document.getElementById("day-detail-card");
-  card.style.display = "block";
-  document.getElementById("day-detail-label").textContent = `Log วันที่ ${d} ${MONTH_NAMES[m]} ${dashYear}`;
-  document.getElementById("day-log-list").innerHTML = logs.map(l => `
-    <div class="log-item">
-      <span class="log-time">${l.time}</span>
-      <span class="log-text">${l.text}</span>
-      <span class="log-cat">${getCategory(l.text)}</span>
-    </div>`).join("");
-  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+function getMonthLogs(year, month){
+  const prefix = `${year}-${String(month+1).padStart(2,'0')}`;
+  // From todayLogs (live entries today)
+  const today = todayStr();
+  const live = today.startsWith(prefix) ? todayLogs.map(l=>({text:l.text, date:today})) : [];
+  return [...allLogs.filter(l=>l.date.startsWith(prefix)), ...live];
 }
 
-updateCoachDataInfo();
+function getCounts(logs){
+  const counts = {};
+  categories.forEach(c=>counts[c.id]=0);
+  counts['other']=0;
+  logs.forEach(l=>{
+    const cat=getCategoryForText(l.text);
+    if(cat) counts[cat.id]=(counts[cat.id]||0)+1;
+    else counts['other']++;
+  });
+  return counts;
+}
+
+function drawDonut(counts, total){
+  const canvas = document.getElementById('donut-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=180, cx=90, cy=90, r=70, inner=44;
+  ctx.clearRect(0,0,W,W);
+  document.getElementById('donut-total').textContent = total;
+  if(total===0){
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle='#1e1e38';ctx.lineWidth=26;ctx.stroke();
+    return;
+  }
+  let angle = -Math.PI/2;
+  const gap = 0.03;
+  const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0}))
+    .concat([{name:'อื่นๆ',color:'#333355',val:counts['other']||0}])
+    .filter(e=>e.val>0);
+  entries.forEach(e=>{
+    const slice = (e.val/total)*Math.PI*2 - gap;
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,angle+gap/2,angle+gap/2+slice);
+    ctx.arc(cx,cy,inner,angle+gap/2+slice,angle+gap/2,true);
+    ctx.closePath();
+    ctx.fillStyle=e.color;
+    ctx.fill();
+    angle += (e.val/total)*Math.PI*2;
+  });
+}
+
+function renderLegend(counts, total){
+  const el = document.getElementById('legend'); if(!el) return;
+  const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0,id:c.id}))
+    .concat([{name:'อื่นๆ',color:'#333355',val:counts['other']||0,id:'other'}])
+    .filter(e=>e.val>0)
+    .sort((a,b)=>b.val-a.val);
+  el.innerHTML = entries.map(e=>{
+    const pct = total?Math.round(e.val/total*100):0;
+    return `<div style="display:flex;align-items:center;gap:8px">
+      <div style="width:10px;height:10px;border-radius:3px;background:${e.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:12px">${e.name}</div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)">${pct}%</div>
+      <div style="font-size:10px;color:var(--muted);min-width:24px;text-align:right">${e.val}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCatList(){
+  const el = document.getElementById('cat-list'); if(!el) return;
+  el.innerHTML = categories.map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
+      <div style="width:12px;height:12px;border-radius:3px;background:${c.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:13px">${c.name}</div>
+      <div style="font-size:10px;color:var(--muted);flex:1">${c.keywords.join(', ')}</div>
+      <button class="row-btn" onclick="deleteCat(${c.id})" style="color:var(--danger);border-color:rgba(255,68,102,.2)">✕</button>
+    </div>`).join('');
+}
+
+function renderDash(){
+  const logs = getMonthLogs(dashYear, dashMonth);
+  const counts = getCounts(logs);
+  const total = logs.length;
+  const label = `${THAI_MONTHS[dashMonth]} ${dashYear+543}`;
+  document.getElementById('dash-month-label').textContent=label;
+  drawDonut(counts, total);
+  renderLegend(counts, total);
+  renderCatList();
+}
+
+function changeMonth(dir){
+  if(dir===0){dashYear=new Date().getFullYear();dashMonth=new Date().getMonth();}
+  else{
+    dashMonth+=dir;
+    if(dashMonth>11){dashMonth=0;dashYear++;}
+    if(dashMonth<0){dashMonth=11;dashYear--;}
+  }
+  renderDash();
+}
+
+// Cat modal
+let selectedColor = PALETTE[0];
+function openCatModal(){
+  selectedColor=PALETTE[0];
+  document.getElementById('cat-name-input').value='';
+  document.getElementById('cat-keywords-input').value='';
+  document.getElementById('color-picker').innerHTML=PALETTE.map(c=>
+    `<div onclick="selectColor('${c}')" id="cp-${c.slice(1)}" style="width:24px;height:24px;border-radius:6px;background:${c};cursor:pointer;border:2px solid ${c===selectedColor?'#fff':'transparent'};transition:all .15s"></div>`
+  ).join('');
+  document.getElementById('cat-modal').style.display='flex';
+  document.getElementById('cat-name-input').focus();
+}
+function selectColor(c){
+  selectedColor=c;
+  document.querySelectorAll('#color-picker > div').forEach(el=>{el.style.border='2px solid transparent';});
+  const el=document.getElementById('cp-'+c.slice(1));if(el)el.style.border='2px solid #fff';
+}
+function closeCatModal(){document.getElementById('cat-modal').style.display='none';}
+function saveCat(){
+  const name=document.getElementById('cat-name-input').value.trim(); if(!name)return;
+  const keywords=document.getElementById('cat-keywords-input').value.split(',').map(k=>k.trim()).filter(Boolean);
+  categories.push({id:catNextId++,name,color:selectedColor,keywords});
+  closeCatModal(); renderDash();
+}
+function deleteCat(id){
+  categories=categories.filter(c=>c.id!==id);
+  renderDash();
+}
+
+// Also update getCat in LOG to use categories
+function getCat(text){
+  const cat=getCategoryForText(text);
+  return cat?cat.name:'อื่นๆ';
+}
+
+// ── INIT ──
+document.getElementById('sb-name').textContent=userName;
+document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
+setTimePreset(0);
+renderCustomTags();
+renderPlanner();
+renderToday();
+// Refresh gap alerts every minute
+setInterval(renderToday, 60000);
 </script>
 </body>
 </html>
