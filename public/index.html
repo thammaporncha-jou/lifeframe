@@ -286,7 +286,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div id="gap-alert" style="display:none;font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace"></div>
       </div>
       <div class="timeline" id="timeline">
-        <div id="empty-log-msg" style="color:var(--muted);font-size:12px;text-align:center;padding:16px">— ยังไม่มี log วันนี้ —</div>
+        <div id="empty-log-msg" style="color:var(--muted);font-size:12px;text-align:center;padding:16px">— No logs today —</div>
       </div>
     </div>
   </div>
@@ -721,7 +721,7 @@ function renderToday(){
   // Get logs for the viewed date
   const logsToShow = isToday ? todayLogs : allLogs.filter(l=>l.date===viewLogDate);
   if(!logsToShow.length){
-    tl.innerHTML="<div style='color:var(--muted);font-size:12px;text-align:center;padding:16px'>— ไม่มี log วันนี้ —</div>";
+    tl.innerHTML="<div style='color:var(--muted);font-size:12px;text-align:center;padding:16px'>"+(currentLang==="en"?"— No logs —":"— ไม่มี log วันนี้ —")+"</div>";
     return;
   }
   const todayLogs_backup = todayLogs;
