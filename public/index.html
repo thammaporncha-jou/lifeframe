@@ -956,12 +956,12 @@ async function saveTodo(){
 const PALETTE = ['#00ff88','#7c3aed','#ff6b35','#00bfff','#ff4466','#ffd700','#00e5cc','#ff69b4','#a78bfa','#34d399','#f87171','#fb923c'];
 
 let categories = [
-  {id:1, name:'Sleep',      color:'#4ade80', keywords:['นอน','หลับ','sleep','nap']},
-  {id:2, name:'Daily',      color:'#94a3b8', keywords:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว','eat','food','coffee','shower','breakfast','lunch','dinner']},
-  {id:3, name:'Work',       color:'#22d3ee', keywords:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ','work','meeting','report','office','email']},
-  {id:4, name:'Exercise',   color:'#f472b6', keywords:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga','exercise','gym','run','workout','swim']},
-  {id:5, name:'Growth',     color:'#facc15', keywords:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','คอร์ส','ฝึก','เรียน','read','learn','study','course','book']},
-  {id:6, name:'Phone',      color:'#f87171', keywords:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก','instagram','facebook','twitter','phone','social','tiktok','youtube']},
+  {id:1, name:'Sleep',    name_th:'นอน',           color:'#4ade80', keywords:['นอน','หลับ','sleep','nap']},
+  {id:2, name:'Daily',    name_th:'กิจวัตร',        color:'#94a3b8', keywords:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว','eat','food','coffee','shower','breakfast','lunch','dinner']},
+  {id:3, name:'Work',     name_th:'ทำงาน',          color:'#22d3ee', keywords:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ','work','meeting','report','office','email']},
+  {id:4, name:'Exercise', name_th:'ออกกำลังกาย',   color:'#f472b6', keywords:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga','exercise','gym','run','workout','swim']},
+  {id:5, name:'Growth',   name_th:'พัฒนาตัวเอง',   color:'#facc15', keywords:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','คอร์ส','ฝึก','เรียน','read','learn','study','course','book']},
+  {id:6, name:'Phone',    name_th:'เล่นโทรศัพท์',  color:'#f87171', keywords:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก','instagram','facebook','twitter','phone','social','tiktok','youtube']},
 ];
 let catNextId = 7;
 let dashYear = new Date().getFullYear();
@@ -1014,7 +1014,7 @@ function drawDonut(counts, total){
   }
   let angle = -Math.PI/2;
   const gap = 0.03;
-  const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0}))
+  const entries = categories.map(c=>({name:currentLang==="en"?c.name:(c.name_th||c.name),color:c.color,val:counts[c.id]||0}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',val:counts['other']||0}])
     .filter(e=>e.val>0);
   entries.forEach(e=>{
@@ -1031,7 +1031,7 @@ function drawDonut(counts, total){
 
 function renderLegend(counts, total){
   const el = document.getElementById('legend'); if(!el) return;
-  const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0,id:c.id}))
+  const entries = categories.map(c=>({name:currentLang==="en"?c.name:(c.name_th||c.name),color:c.color,val:counts[c.id]||0,id:c.id}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',val:counts['other']||0,id:'other'}])
     .filter(e=>e.val>0)
     .sort((a,b)=>b.val-a.val);
@@ -1103,7 +1103,7 @@ function timeDiffMins(t1,t2){return timeToMins(t2)-timeToMins(t1);}
 function renderHoursSummary(year, month){
   const el=document.getElementById('hours-summary-list'); if(!el) return;
   const hours=calcHours(year, month);
-  const entries=categories.map(c=>({name:c.name,color:c.color,mins:hours[c.id]||0}))
+  const entries=categories.map(c=>({name:currentLang==="en"?c.name:(c.name_th||c.name),color:c.color,mins:hours[c.id]||0}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:hours['other']||0}])
     .filter(e=>e.mins>0)
     .sort((a,b)=>b.mins-a.mins);
@@ -1185,7 +1185,7 @@ function renderDayHours(date){
     const key=cat?cat.id:'other';
     durBycat[key]=(durBycat[key]||0)+diff;
   }
-  const entries=categories.map(c=>({name:c.name,color:c.color,mins:durBycat[c.id]||0}))
+  const entries=categories.map(c=>({name:currentLang==="en"?c.name:(c.name_th||c.name),color:c.color,mins:durBycat[c.id]||0}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:durBycat['other']||0}])
     .filter(e=>e.mins>0).sort((a,b)=>b.mins-a.mins);
   if(!entries.length){el.innerHTML="<div style='font-size:12px;color:var(--muted)'>"+(currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —")+"</div>";return;}
@@ -1246,7 +1246,7 @@ function deleteCat(id){
 // Also update getCat in LOG to use categories
 function getCat(text){
   const cat=getCategoryForText(text);
-  return cat?cat.name:(currentLang==="en"?"Other":"อื่นๆ");
+  return cat?(currentLang==="en"?cat.name:(cat.name_th||cat.name)):(currentLang==="en"?"Other":"อื่นๆ");
 }
 
 // ── PLAY / PAUSE ──
@@ -1420,11 +1420,11 @@ const UI_TEXT = {
     'notif-btn-text':'เปิดแจ้งเตือน',
     'notif-30':'ทุก 30 นาที','notif-60':'ทุก 1 ชั่วโมง','notif-120':'ทุก 2 ชั่วโมง','notif-180':'ทุก 3 ชั่วโมง',
     // Log page
-    'log-card-label':'บันทึกกิจกรรม','log-title':'ทำอะไรอยู่?',
-    'log-placeholder':'เช่น: กินข้าว, ทำงาน...','play-btn':'▶ play',
+    'log-card-label':'บันทึก','log-title':'ทำอะไรอยู่?',
+    'log-placeholder':'เช่น: กินข้าว, ทำงาน...','play-btn':'▶ เริ่ม',
     'tag-sleep':'😴 นอน','tag-eat':'🍚 กินข้าว','tag-exercise':'🏃 ออกกำลังกาย',
     'tag-read':'📚 อ่านหนังสือ','tag-english':'🗣 เรียนภาษาอังกฤษ','tag-phone':'📱 เล่นโทรศัพท์',
-    'timeline-today':'timeline วันนี้','today-btn':'วันนี้',
+    'timeline-today':'timeline วันนี้','today-btn':'วันนี้','log-today-btn':'วันนี้',
     // Dashboard
     'dash-donut-label':'สัดส่วนกิจกรรม','dash-hours-label':'เวลารวมแต่ละหมวด',
     'dash-cat-label':'จัดการหมวดหมู่','dash-add-cat':'+ เพิ่มหมวดหมู่',
