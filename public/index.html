@@ -286,20 +286,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="card">
       <div class="card-label" id="log-card-label">บันทึกกิจกรรม</div>
       <div class="section-title" id="log-section-title">ทำอะไรอยู่?</div>
-      <div class="section-sub">พิมพ์สั้นๆ หรือกด tag • ย้อนเวลาได้</div>
+      
       <div class="log-area" style="margin-top:12px">
         <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน..." onkeydown="if(event.key==='Enter')startLog()">
         <button class="log-btn" onclick="startLog()">▶ play</button>
       </div>
 
-      <div class="all-tags" id="all-tags">
-        <button class="tag" onclick="quickLog('😴 นอน')">😴 นอน</button>
-        <button class="tag" onclick="quickLog('🍚 กินข้าว')">🍚 กินข้าว</button>
-        <button class="tag" onclick="quickLog('🏃 ออกกำลังกาย')">🏃 ออกกำลังกาย</button>
-        <button class="tag" onclick="quickLog('📚 อ่านหนังสือ')">📚 อ่านหนังสือ</button>
-        <button class="tag" onclick="quickLog('🗣 เรียนภาษาอังกฤษ')">🗣 เรียนภาษาอังกฤษ</button>
-        <button class="tag" onclick="quickLog('📱 เล่นโทรศัพท์')">📱 เล่นโทรศัพท์</button>
-      </div>
+      <div class="all-tags" id="all-tags"></div>
     </div>
 
 
@@ -323,7 +316,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 8px">
       <div>
         <div style="font-size:18px;font-weight:700">Daily Planner</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">กด →วัน เพื่อเลื่อนงานไปวันถัดไป</div>
+        
       </div>
       <button class="add-todo-btn" onclick="openTodoModal()">+ เพิ่มงาน</button>
     </div>
@@ -376,7 +369,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div class="card-label" style="margin:0">จัดการหมวดหมู่</div>
-        <button class="day-add" onclick="openCatModal()">+ เพิ่มหมวดหมู่</button>
+        <button class="day-add" id="day-add-btn" onclick="openCatModal()">+ เพิ่มหมวดหมู่</button>
       </div>
       <div id="cat-list" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
@@ -644,6 +637,36 @@ function quickLogFromSidebar(t){document.getElementById('log-input').value=t;set
 // ── LOG ──
 
 function quickLog(t){document.getElementById('log-input').value=t;addLog();}
+
+const DEFAULT_TAGS = [
+  {th:'😴 นอน', en:'😴 Sleep', sleep:true},
+  {th:'🍚 กินข้าว', en:'🍚 Eat'},
+  {th:'🏃 ออกกำลังกาย', en:'🏃 Exercise'},
+  {th:'📚 อ่านหนังสือ', en:'📚 Read'},
+  {th:'🗣 เรียนภาษาอังกฤษ', en:'🗣 Learn English'},
+  {th:'📱 เล่นโทรศัพท์', en:'📱 Phone'},
+];
+
+function renderTags(){
+  const wrap=document.getElementById('all-tags'); if(!wrap) return;
+  // Sleep button
+  const sleepLabel=sleepStart?(currentLang==='en'?'Wake Up':'ตื่น'):(currentLang==='en'?'Sleep':'นอน');
+  const sleepStyle=sleepStart?'background:rgba(0,191,255,.15);border-color:rgba(0,191,255,.4);color:#00bfff':'';
+  let html=`<button class="tag sleep-tag" id="sleep-btn" onclick="toggleSleep()" style="${sleepStyle}">😴 <span id="sleep-btn-label">${sleepLabel}</span></button>`;
+  // Other tags
+  DEFAULT_TAGS.slice(1).forEach(tag=>{
+    const label=currentLang==='en'?tag.en:tag.th;
+    const logText=currentLang==='en'?tag.en:tag.th;
+    html+=`<button class="tag" onclick="quickLog('${logText}')">${label}</button>`;
+  });
+  wrap.innerHTML=html;
+  // Custom tags
+  customTags.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='tag custom';b.textContent=t;
+    b.onclick=()=>quickLog(t);wrap.appendChild(b);
+  });
+}
 async function startLog(){
   const inp=document.getElementById('log-input');
   const txt=inp.value.trim(); if(!txt) return;
@@ -738,10 +761,10 @@ function renderPlanner(){
       <div class="day-header">
         <div class="day-name" style="color:${isToday?'var(--accent)':isPast?'var(--muted)':'var(--text)'}">${dayLabel}</div>
         <div class="day-sub">${formatThai(date)}</div>
-        ${isToday?'<span class="day-badge today">TODAY</span>':''}
+        ${isToday?'<span class="day-badge today">${currentLang==='en'?'TODAY':'วันนี้'}</span>':''}
         ${isPast&&items.length?'<span class="day-badge past">ค้าง</span>':''}
         <span class="day-count">${done}/${items.length}</span>
-        <button class="day-add" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
+        <button class="day-add" id="day-add-btn" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
       </div>
       <div class="day-drop-hint">วางงานที่นี่เพื่อย้ายมาวัน ${formatThai(date)}</div>
       ${items.length===0?`<div style="color:var(--muted);font-size:12px;padding:10px 4px;font-family:'Space Mono',monospace">— ไม่มีงาน —</div>`:''}
@@ -763,8 +786,8 @@ function renderPlanner(){
                 ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
-              ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">→วันนี้</button>`:''}
-              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">→วัน</button>`:''}
+              ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==='en'?'→Today':'→วันนี้'}</button>`:''}
+              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==='en'?'→Next':'→วัน'}</button>`:''}
               <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
             </div>
           </div>
@@ -782,7 +805,7 @@ function renderPlanner(){
 }
 
 function toggleStep(id,si){const t=todos.find(t=>t.id===id);if(t){t.steps[si].done=!t.steps[si].done;renderPlanner();}}
-function moveCard(id,date){const t=todos.find(t=>t.id===id);if(t){t.date=date;renderPlanner();}}
+async function moveCard(id,date){const t=todos.find(t=>t.id===id);if(t){t.date=date;await updateTodoInDB(t);renderPlanner();}}
 async function deleteTodo(id){await deleteFromDB('todos',id);todos=todos.filter(t=>t.id!==id);renderPlanner();}
 
 // ── DRAG ──
@@ -1404,6 +1427,7 @@ const UI_TEXT = {
     'log-placeholder':'e.g. eat, work, sleep...','play-btn':'▶ play',
     'tag-sleep':'😴 Sleep','tag-eat':'🍚 Eat','tag-exercise':'🏃 Exercise',
     'tag-read':'📚 Read','tag-english':'🗣 Learn English','tag-phone':'📱 Phone',
+    'tag-coffee':'☕ Coffee','tag-game':'🎮 Gaming','tag-meditation':'🧘 Meditation',
     'timeline-today':'Today Timeline','today-btn':'Today',
     'dash-donut-label':'Activity Breakdown','dash-hours-label':'Hours by Category',
     'dash-cat-label':'Manage Categories','dash-add-cat':'+ Add Category',
@@ -1448,9 +1472,10 @@ function setLang(lang){
   applySpan('tag-english-txt', lang==='en'?'tag-english':'tag-english');
   applySpan('tag-phone-txt', lang==='en'?'tag-phone':'tag-phone');
   // Use correct text from T
-  ['eat','exercise','read','english','phone'].forEach(k=>{
-    const el=document.getElementById('tag-'+k+'-txt');
-    if(el) el.textContent=T['tag-'+k].replace(/^[^ ]+ /,'');
+  const tagMap={'eat':'tag-eat-txt','exercise':'tag-exercise-txt','read':'tag-read-txt','english':'tag-english-txt','phone':'tag-phone-txt'};
+  Object.entries(tagMap).forEach(([k,id])=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=T['tag-'+k].replace(/^\S+ /,'');
   });
   // Dash
   apply('dash-mode-day','dash-mode-day');apply('dash-mode-month','dash-mode-month');
@@ -1459,7 +1484,8 @@ function setLang(lang){
   // Sign out
   const so=document.getElementById('sign-out-btn');if(so)so.textContent=T['sign-out'];
 
-  renderToday();renderPlanner();
+  // Update day names in planner dynamically on re-render
+  renderTags();renderToday();renderPlanner();
 }
 
 // ── SHARE ──
@@ -1546,6 +1572,7 @@ async function updateTodoInDB(todo){
 function initApp(){
   document.getElementById('sb-name').textContent=userName;
   document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
+  renderTags();
   renderCustomTags();
   renderQuickTasks();
   renderPlanner();
