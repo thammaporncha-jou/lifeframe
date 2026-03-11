@@ -566,7 +566,8 @@ function getTime(){return new Date().toTimeString().slice(0,5);}
 
 // ── STATE ──
 let userName = 'Mook';
-let customTags = ['😴 Sleep','🚿 Take a shower','🧘 Meditation'];
+const DEFAULT_CUSTOM_TAGS = ['😴 Sleep','🍚 Eat','🚿 Take a shower','🧘 Meditation','☕ Coffee','📱 Phone'];
+let customTags = [...DEFAULT_CUSTOM_TAGS];
 let todayLogs = [];
 const T = todayStr();
 let todos = [
@@ -1315,11 +1316,13 @@ function updateNpTimer() {
 }
 
 // ── QUICK TASKS ──
-let quickTasks = [
+const DEFAULT_QUICK_TASKS = [
   {id:1, title:'🏃 Exercise', steps:[{text:'Squat x 20',done:false},{text:'Push-up x 15',done:false},{text:'Plank 1 min',done:false}], link:''},
   {id:2, title:'📚 Reading', steps:[{text:'Read 20 pages',done:false}], link:''},
   {id:3, title:'🧘 Meditation', steps:[{text:'Breathe 10 min',done:false}], link:''},
+  {id:4, title:'💼 Work', steps:[{text:'Check emails',done:false},{text:'Update tasks',done:false}], link:''},
 ];
+let quickTasks = [...DEFAULT_QUICK_TASKS];
 let qtNextId = 4;
 function renderQuickTasks(){
   const el = document.getElementById('quick-tasks-sidebar'); if(!el) return;
