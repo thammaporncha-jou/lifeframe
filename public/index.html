@@ -1051,7 +1051,7 @@ function renderCatList(){
   el.innerHTML = categories.map(c=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
       <div style="width:12px;height:12px;border-radius:3px;background:${c.color};flex-shrink:0"></div>
-      <div style="flex:1;font-size:13px">${c.name}</div>
+      <div style="flex:1;font-size:13px">${currentLang==="en"?c.name:(c.name_th||c.name)}</div>
       <div style="font-size:10px;color:var(--muted);flex:1">${c.keywords.join(', ')}</div>
       <button class="row-btn" onclick="deleteCat(${c.id})" style="color:var(--danger);border-color:rgba(255,68,102,.2)">✕</button>
     </div>`).join('');
@@ -1424,7 +1424,7 @@ const UI_TEXT = {
     'log-placeholder':'เช่น: กินข้าว, ทำงาน...','play-btn':'▶ เริ่ม',
     'tag-sleep':'😴 นอน','tag-eat':'🍚 กินข้าว','tag-exercise':'🏃 ออกกำลังกาย',
     'tag-read':'📚 อ่านหนังสือ','tag-english':'🗣 เรียนภาษาอังกฤษ','tag-phone':'📱 เล่นโทรศัพท์',
-    'timeline-today':'timeline วันนี้','today-btn':'วันนี้','log-today-btn':'วันนี้',
+    'timeline-today':'timeline วันนี้','today-btn':'วันนี้',
     // Dashboard
     'dash-donut-label':'สัดส่วนกิจกรรม','dash-hours-label':'เวลารวมแต่ละหมวด',
     'dash-cat-label':'จัดการหมวดหมู่','dash-add-cat':'+ เพิ่มหมวดหมู่',
@@ -1502,6 +1502,8 @@ function setLang(lang){
   });
   // Dash
   apply('dash-mode-day','dash-mode-day');apply('dash-mode-month','dash-mode-month');
+  apply('dash-today-btn','today-btn');
+  apply('log-today-btn','today-btn');
   // Notif
   apply('notif-btn','notif-btn-text');
   // Sign out
