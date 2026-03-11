@@ -1458,6 +1458,7 @@ const UI_TEXT = {
 
 function setLang(lang){
   currentLang=lang;
+  try{localStorage.setItem('lifeframe_lang',lang);}catch(e){}
   const T=UI_TEXT[lang];
   // Sidebar lang buttons style
   document.getElementById('lang-th-btn').style.background=lang==='th'?'var(--accent)':'var(--surface2)';
@@ -1600,6 +1601,9 @@ async function updateTodoInDB(todo){
 
 // ── INIT ──
 function initApp(){
+  // Restore saved language
+  try{const savedLang=localStorage.getItem('lifeframe_lang');if(savedLang)currentLang=savedLang;}catch(e){}
+  if(currentLang==='en') setLang('en');
   document.getElementById('sb-name').textContent=userName;
   document.getElementById('sb-avatar').textContent=userName[0].toUpperCase();
   setLang('en'); // default EN
