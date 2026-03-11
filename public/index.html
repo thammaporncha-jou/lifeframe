@@ -561,12 +561,12 @@ function formatThai(ds){
   const m=["","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
   return `${+p[2]} ${m[+p[1]]} ${+p[0]+543}`;
 }
-function dayOfWeek(ds){return ["อา","จ","อ","พ","พฤ","ศ","ส"][new Date(ds+'T00:00:00').getDay()];}
+function dayOfWeek(ds){const idx=new Date(ds+'T00:00:00').getDay();return currentLang==="en"?["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][idx]:["อา","จ","อ","พ","พฤ","ศ","ส"][idx];}
 function getTime(){return new Date().toTimeString().slice(0,5);}
 
 // ── STATE ──
 let userName = 'Mook';
-let customTags = ['🧘 Meditation','☕ กาแฟ','🎮 เล่นเกม'];
+let customTags = ['😴 Sleep','🚿 Take a shower','🧘 Meditation'];
 let todayLogs = [];
 const T = todayStr();
 let todos = [
@@ -620,7 +620,31 @@ function renderCustomTags(){
   const wrap=document.getElementById('all-tags');
   customTags.forEach(t=>{const b=document.createElement('button');b.className='tag custom';b.textContent=t;b.onclick=()=>quickLog(t);wrap.appendChild(b);});
 }
-function addCustomTag(){const inp=document.getElementById('new-tag-input');const v=inp.value.trim();if(!v)return;customTags.push(v);inp.value='';renderCustomTags();}
+function getAutoEmoji(text){
+  const t=text.toLowerCase();
+  if(t.includes('sleep')||t.includes('nap')||t.includes('นอน')) return '😴';
+  if(t.includes('eat')||t.includes('food')||t.includes('lunch')||t.includes('dinner')||t.includes('breakfast')||t.includes('กิน')||t.includes('ข้าว')) return '🍚';
+  if(t.includes('coffee')||t.includes('กาแฟ')) return '☕';
+  if(t.includes('work')||t.includes('งาน')) return '💼';
+  if(t.includes('exercise')||t.includes('gym')||t.includes('run')||t.includes('workout')||t.includes('ออกกำลัง')) return '🏃';
+  if(t.includes('read')||t.includes('book')||t.includes('อ่าน')) return '📚';
+  if(t.includes('meditat')||t.includes('yoga')||t.includes('สมาธิ')) return '🧘';
+  if(t.includes('game')||t.includes('เกม')||t.includes('gaming')) return '🎮';
+  if(t.includes('shower')||t.includes('bath')||t.includes('อาบ')) return '🚿';
+  if(t.includes('phone')||t.includes('social')||t.includes('โทรศัพท์')) return '📱';
+  if(t.includes('study')||t.includes('learn')||t.includes('เรียน')) return '🎓';
+  if(t.includes('meet')||t.includes('ประชุม')) return '👥';
+  if(t.includes('walk')||t.includes('เดิน')) return '🚶';
+  if(t.includes('music')||t.includes('เพลง')) return '🎵';
+  return '⚡';
+}
+function addCustomTag(){
+  const inp=document.getElementById('new-tag-input');
+  const v=inp.value.trim();if(!v)return;
+  const emoji=getAutoEmoji(v);
+  const tag=v.startsWith(emoji)?v:emoji+' '+v;
+  customTags.push(tag);inp.value='';renderCustomTags();
+}
 function removeCustomTag(i){customTags.splice(i,1);renderCustomTags();}
 function quickLogFromSidebar(t){document.getElementById('log-input').value=t;setTimePreset(0);addLog();showPage('log');closeSidebar();}
 
@@ -777,7 +801,6 @@ function renderPlanner(){
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
               ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==="en"?"→Today":"→วันนี้"}</button>`:''}
-              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==="en"?"→Next":"→วัน"}</button>`:''}
               <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
             </div>
           </div>
@@ -994,7 +1017,7 @@ function drawDonut(counts, total){
   let angle = -Math.PI/2;
   const gap = 0.03;
   const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0}))
-    .concat([{name:'อื่นๆ',color:'#333355',val:counts['other']||0}])
+    .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',val:counts['other']||0}])
     .filter(e=>e.val>0);
   entries.forEach(e=>{
     const slice = (e.val/total)*Math.PI*2 - gap;
@@ -1011,7 +1034,7 @@ function drawDonut(counts, total){
 function renderLegend(counts, total){
   const el = document.getElementById('legend'); if(!el) return;
   const entries = categories.map(c=>({name:c.name,color:c.color,val:counts[c.id]||0,id:c.id}))
-    .concat([{name:'อื่นๆ',color:'#333355',val:counts['other']||0,id:'other'}])
+    .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',val:counts['other']||0,id:'other'}])
     .filter(e=>e.val>0)
     .sort((a,b)=>b.val-a.val);
   el.innerHTML = entries.map(e=>{
@@ -1082,7 +1105,7 @@ function renderHoursSummary(year, month){
   const el=document.getElementById('hours-summary-list'); if(!el) return;
   const hours=calcHours(year, month);
   const entries=categories.map(c=>({name:c.name,color:c.color,mins:hours[c.id]||0}))
-    .concat([{name:'อื่นๆ',color:'#333355',mins:hours['other']||0}])
+    .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:hours['other']||0}])
     .filter(e=>e.mins>0)
     .sort((a,b)=>b.mins-a.mins);
   if(!entries.length){
@@ -1164,7 +1187,7 @@ function renderDayHours(date){
     durBycat[key]=(durBycat[key]||0)+diff;
   }
   const entries=categories.map(c=>({name:c.name,color:c.color,mins:durBycat[c.id]||0}))
-    .concat([{name:'อื่นๆ',color:'#333355',mins:durBycat['other']||0}])
+    .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:durBycat['other']||0}])
     .filter(e=>e.mins>0).sort((a,b)=>b.mins-a.mins);
   if(!entries.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">— ยังไม่มีข้อมูล —</div>';return;}
   const maxMins=entries[0].mins;
@@ -1224,7 +1247,7 @@ function deleteCat(id){
 // Also update getCat in LOG to use categories
 function getCat(text){
   const cat=getCategoryForText(text);
-  return cat?cat.name:'อื่นๆ';
+  return cat?cat.name:(currentLang==="en"?"Other":"อื่นๆ");
 }
 
 // ── PLAY / PAUSE ──
