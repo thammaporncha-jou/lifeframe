@@ -203,11 +203,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div id="auth-screen" style="display:none;position:fixed;inset:0;z-index:200;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:16px">
   <div style="font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);letter-spacing:3px;margin-bottom:8px">LIFEFRAME</div>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px">
-    <input id="auth-email" class="modal-input" type="email" placeholder="อีเมล" style="width:100%;box-sizing:border-box">
-    <input id="auth-pass" class="modal-input" type="password" placeholder="รหัสผ่าน" style="width:100%;box-sizing:border-box">
+    <input id="auth-email" class="modal-input" type="email" placeholder="Email" style="width:100%;box-sizing:border-box">
+    <input id="auth-pass" class="modal-input" type="password" placeholder="Password" style="width:100%;box-sizing:border-box">
     <div id="auth-error" style="font-size:11px;min-height:16px;text-align:center"></div>
-    <button onclick="signIn()" class="log-btn" style="width:100%;justify-content:center">เข้าสู่ระบบ</button>
-    <button onclick="signUp()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer">สมัครสมาชิก</button>
+    <button onclick="signIn()" class="log-btn" style="width:100%;justify-content:center">Sign In</button>
+    <button onclick="signUp()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer">Create Account</button>
   </div>
 </div>
 
@@ -480,18 +480,18 @@ async function initSupabase(){
 async function signUp(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
-  if(!email||!pass){showAuthError('กรุณากรอกอีเมลและรหัสผ่าน');return;}
+  if(!email||!pass){showAuthError('Please enter email and password');return;}
   const {error}=await supa.auth.signUp({email,password:pass});
   if(error){showAuthError(error.message);}
-  else{showAuthError('ส่ง email ยืนยันแล้วครับ กรุณาเช็ค inbox','var(--accent)');}
+  else{showAuthError('Verification email sent! Please check your inbox.','var(--accent)');}
 }
 
 async function signIn(){
   const email=document.getElementById('auth-email').value.trim();
   const pass=document.getElementById('auth-pass').value;
-  if(!email||!pass){showAuthError('กรุณากรอกอีเมลและรหัสผ่าน');return;}
+  if(!email||!pass){showAuthError('Please enter email and password');return;}
   const {data,error}=await supa.auth.signInWithPassword({email,password:pass});
-  if(error){showAuthError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');}
+  if(error){showAuthError('Incorrect email or password');}
   else{currentUser=data.user;document.getElementById('auth-screen').style.display='none';document.getElementById('app').style.display='block';await loadAllData();initApp();}
 }
 
