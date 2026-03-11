@@ -566,7 +566,7 @@ function getTime(){return new Date().toTimeString().slice(0,5);}
 
 // ── STATE ──
 let userName = 'Mook';
-const DEFAULT_CUSTOM_TAGS = ['💻 Side Project','🎨 Hobby'];
+const DEFAULT_CUSTOM_TAGS = ['🎨 Hobby','🧘 Meditation'];
 let customTags = [...DEFAULT_CUSTOM_TAGS];
 let todayLogs = [];
 const T = todayStr();
@@ -654,11 +654,9 @@ function quickLog(t){document.getElementById('log-input').value=t;addLog();}
 
 const DEFAULT_TAGS = [
   {th:'😴 นอน', en:'😴 Sleep', sleep:true},
-  {th:'🍚 กินข้าว', en:'🍚 Eat'},
-  {th:'🏃 ออกกำลังกาย', en:'🏃 Exercise'},
-  {th:'📚 อ่านหนังสือ', en:'📚 Read'},
-  {th:'🗣 เรียนภาษาอังกฤษ', en:'🗣 Learn English'},
-  {th:'📱 เล่นโทรศัพท์', en:'📱 Phone'},
+  {th:'🍚 กิน', en:'🍚 Eat'},
+  {th:'📚 อ่าน', en:'📚 Read'},
+  {th:'📱 โทรศัพท์', en:'📱 Phone'},
 ];
 
 function renderTags(){
@@ -1318,10 +1316,8 @@ function updateNpTimer() {
 
 // ── QUICK TASKS ──
 const DEFAULT_QUICK_TASKS = [
-  {id:1, title:'🏃 Exercise', steps:[{text:'Squat x 20',done:false},{text:'Push-up x 15',done:false},{text:'Plank 1 min',done:false}], link:''},
-  {id:2, title:'📚 Reading', steps:[{text:'Read 20 pages',done:false}], link:''},
-  {id:3, title:'🧘 Meditation', steps:[{text:'Breathe 10 min',done:false}], link:''},
-  {id:4, title:'💼 Work', steps:[{text:'Check emails',done:false},{text:'Update tasks',done:false}], link:''},
+  {id:1, title:'💻 Side Project', steps:[{text:'Work on project',done:false}], link:''},
+  {id:2, title:'🗣 Learn English', steps:[{text:'Practice 20 min',done:false}], link:''},
 ];
 let quickTasks = [...DEFAULT_QUICK_TASKS];
 let qtNextId = 4;
