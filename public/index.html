@@ -683,7 +683,8 @@ function renderTags(){
   const isSleeping=!!sleepStart;
   const sleepLabel=isSleeping?(currentLang==="en"?'Wake Up \u2600\ufe0f':'\u0e15\u0e37\u0e48\u0e19 \u2600\ufe0f'):(currentLang==="en"?'\ud83d\ude34 Sleep':'\ud83d\ude34 \u0e19\u0e2d\u0e19');
   const sleepStyle=isSleeping?'background:rgba(0,191,255,.15);border:1px solid rgba(0,191,255,.4);color:#00bfff':'';
-  let html=`<button class="tag sleep-tag" id="sleep-btn" onclick="toggleSleep()" style="${sleepStyle}">${sleepLabel}</button>`;
+  let html=`<button class="tag sleep-tag" onclick="logSleep()" style="background:rgba(100,100,200,.12);border:1px solid rgba(100,100,200,.3);color:#aab">😴 ${currentLang==="en"?"Sleep":"นอน"}</button>`;
+  html+=`<button class="tag" onclick="logWake()" style="background:rgba(0,191,255,.1);border:1px solid rgba(0,191,255,.25);color:#00bfff">☀️ ${currentLang==="en"?"Wake Up":"ตื่น"}</button>`;
   DEFAULT_TAGS.slice(1).forEach(tag=>{
     const label=currentLang==="en"?tag.en:tag.th;
     html+=`<button class="tag" onclick="quickLog('${label}')">${label}</button>`;
@@ -1558,7 +1559,6 @@ function setLang(lang){
   apply('edit-name-btn', lang==='en'?'edit-name-en':'edit-name-th');
   applyPH('log-input','log-placeholder');
   apply('start-log-btn','play-btn');
-  apply('sleep-btn-label',sleepStart?'wake-btn':'sleep-btn');
   // Tags
   applySpan('tag-eat-txt', lang==='en'?'tag-eat':'tag-eat');
   applySpan('tag-exercise-txt', lang==='en'?'tag-exercise':'tag-exercise');
@@ -1612,43 +1612,21 @@ function shareApp(){
 // ── SLEEP TRACKER ──
 let sleepStart = null;
 
-function toggleSleep(){
-  const btn=document.getElementById('sleep-btn');
-  const label=document.getElementById('sleep-btn-label');
-  if(!sleepStart){
-    // Start sleep
-    sleepStart=getTime();
-    label.textContent=currentLang==="en"?'Wake Up':'ตื่น';
-    btn.style.background='rgba(0,191,255,.15)';
-    btn.style.borderColor='rgba(0,191,255,.4)';
-    btn.style.color='#00bfff';
-    const log={time:sleepStart,text:'😴 นอน',id:Date.now(),active:true};
-    todayLogs.push(log);
-    saveLog(log);
-    todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
-    renderTags();renderToday();
-  } else {
-    // Wake up
-    const wakeTime=getTime();
-    const sleepMins=timeDiffMins(sleepStart,wakeTime);
-    const h=Math.floor(sleepMins/60),m=sleepMins%60;
-    const duration=h>0?(m>0?`${h}h ${m}m`:`${h}h`):`${m}m`;
-    const durationTh=h>0?(m>0?`${h} ชม. ${m} น.`:`${h} ชม.`):`${m} น.`;
-    const activeLog=todayLogs.find(l=>l.active&&l.text.includes('นอน'));
-    if(activeLog) activeLog.active=false;
-    const stopLog={time:wakeTime,text:currentLang==="en"?`Wake up — slept ${duration}`:`ตื่น — นอน ${durationTh}`,id:Date.now(),isStop:true};
-    todayLogs.push(stopLog);
-    saveLog(stopLog);
-    todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
-    // Show summary
-    const sumEl=document.getElementById('sleep-summary');
-    const sumText=document.getElementById('sleep-summary-text');
-    if(sumEl) sumEl.style.display='block';
-    if(sumText) sumText.textContent=currentLang==="en"?`Slept ${duration} (${sleepStart} - ${wakeTime})`:`นอน ${durationTh} (${sleepStart} - ${wakeTime})`;
-    // Reset button
-    sleepStart=null;
-    renderTags();renderToday();
-  }
+function logSleep(){
+  const t = logMode==='back'?(parseTimeInput(document.getElementById('backfill-start').value)||getTime()):getTime();
+  const log={time:t,text:'😴 '+(currentLang==="en"?"Sleep":"นอน"),id:Date.now(),active:false,date:todayStr()};
+  todayLogs.push(log);
+  saveLog(log);
+  todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+  renderToday();
+}
+function logWake(){
+  const t = logMode==='back'?(parseTimeInput(document.getElementById('backfill-end').value)||getTime()):getTime();
+  const log={time:t,text:'☀️ '+(currentLang==="en"?"Wake Up":"ตื่น"),id:Date.now(),active:false,date:todayStr()};
+  todayLogs.push(log);
+  saveLog(log);
+  todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+  renderToday();
 }
 
 // ── LOG DATE NAV ──
