@@ -361,15 +361,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
     <!-- Hours summary -->
     <div class="card" id="hours-summary-card">
-      <div class="card-label">เวลารวมแต่ละหมวด</div>
+      <div class="card-label" id="hours-label">เวลารวมแต่ละหมวด</div>
       <div id="hours-summary-list" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
     </div>
 
     <!-- Category manager -->
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-label" style="margin:0">จัดการหมวดหมู่</div>
-        <button class="day-add" id="day-add-btn" onclick="openCatModal()">+ เพิ่มหมวดหมู่</button>
+        <div class="card-label" style="margin:0" id="cat-label">จัดการหมวดหมู่</div>
+        <button class="day-add" onclick="openCatModal()" id="add-cat-btn">+ เพิ่มหมวดหมู่</button>
       </div>
       <div id="cat-list" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
@@ -381,8 +381,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="std-page">
     <div class="card">
       <div class="card-label">AI Coach</div>
-      <div class="section-title">🎯 วิเคราะห์เป้าหมาย</div>
-      <div class="section-sub" style="margin-top:8px">จะ unlock หลังใช้งานครบ 7 วัน</div>
+      <div class="section-title" id="coach-title">🎯 วิเคราะห์เป้าหมาย</div>
+      <div class="section-sub" style="margin-top:8px" id="coach-sub">จะ unlock หลังใช้งานครบ 7 วัน</div>
     </div>
   </div>
 </div>
@@ -673,7 +673,7 @@ async function startLog(){
   const active=todayLogs.find(l=>l.active);
   if(active){
     active.active=false;
-    const stopEntry={time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true};
+    const stopEntry={time:getTime(),text:`${currentLang==="en"?"Stop":"หยุด"} — ${active.text}`,id:Date.now(),isStop:true};
     todayLogs.push(stopEntry);
     await saveLog(stopEntry);
   }
@@ -687,7 +687,7 @@ function addLog(){startLog();}
 async function stopCurrentLog(){
   const active=todayLogs.find(l=>l.active); if(!active) return;
   active.active=false;
-  const stopEntry={time:getTime(),text:`หยุด — ${active.text}`,id:Date.now(),isStop:true};
+  const stopEntry={time:getTime(),text:`${currentLang==="en"?"Stop":"หยุด"} — ${active.text}`,id:Date.now(),isStop:true};
   todayLogs.push(stopEntry);
   await saveLog(stopEntry);
   todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
@@ -752,7 +752,7 @@ function renderPlanner(){
     const items = grouped[date]||[];
     if(isPast && !items.length) return '';
     const done = items.filter(t=>t.steps.length&&t.steps.every(s=>s.done)).length;
-    const dayLabel = isToday?'วันนี้':isPast?`${dayOfWeek(date)} (ที่ผ่านมา)`:dayOfWeek(date);
+    const dayLabel = isToday?(currentLang==="en"?"Today":"วันนี้"):isPast?`${dayOfWeek(date)} ${currentLang==="en"?"(past)":"(ที่ผ่านมา")}`:dayOfWeek(date);
 
     return `<div class="day-section ${isPast?'past-section':''}" id="day-${date}"
         ondragover="onDayDragOver(event,'${date}')"
@@ -761,13 +761,13 @@ function renderPlanner(){
       <div class="day-header">
         <div class="day-name" style="color:${isToday?'var(--accent)':isPast?'var(--muted)':'var(--text)'}">${dayLabel}</div>
         <div class="day-sub">${formatThai(date)}</div>
-        (isToday?'<span class="day-badge today">'+(currentLang==="en"?"TODAY":"วันนี้")+'</span>':'')+
-        ${isPast&&items.length?'<span class="day-badge past">ค้าง</span>':''}
+        ${isToday?`<span class="day-badge today">${currentLang==="en"?"TODAY":"วันนี้"}</span>`:''}
+        ${isPast&&items.length?'<span class="day-badge past">'+(currentLang==="en"?"overdue":"ค้าง")+'</span>':''}
         <span class="day-count">${done}/${items.length}</span>
         <button class="day-add" id="day-add-btn" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
       </div>
-      <div class="day-drop-hint">วางงานที่นี่เพื่อย้ายมาวัน ${formatThai(date)}</div>
-      ${items.length===0?`<div style="color:var(--muted);font-size:12px;padding:10px 4px;font-family:'Space Mono',monospace">— ไม่มีงาน —</div>`:''}
+      <div class="day-drop-hint">${currentLang==="en"?"Drop here to move to "+formatThai(date):"วางงานที่นี่เพื่อย้ายมาวัน "+formatThai(date)}</div>
+      ${items.length===0?`<div style="color:var(--muted);font-size:12px;padding:10px 4px;font-family:'Space Mono',monospace">${currentLang==="en"?"— No tasks —":"— ไม่มีงาน —"}</div>`:''}
       ${items.map((todo,idx) => {
         const allDone = todo.steps.length&&todo.steps.every(s=>s.done);
         const pct = todo.steps.length ? Math.round(todo.steps.filter(s=>s.done).length/todo.steps.length*100) : 0;
@@ -786,8 +786,8 @@ function renderPlanner(){
                 ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
-              (isPast?'<button class="row-btn" onclick="moveCard('+todo.id+',\''+today+'\')">'+(currentLang==="en"?"→Today":"→วันนี้")+'</button>':'') +
-              (!isPast?'<button class="row-btn" onclick="moveCard('+todo.id+',\''+addDays(date,1)+'\')">'+(currentLang==="en"?"→Next":"→วัน")+'</button>':'') +
+              ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==="en"?"→Today":"→วันนี้"}</button>`:''}
+              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==="en"?"→Next":"→วัน"}</button>`:''}
               <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
             </div>
           </div>
@@ -1275,7 +1275,7 @@ function autoLogStop() {
   const todo = todos.find(t => t.id === activeTaskId);
   if (!todo) return;
   const stopTime = getTime();
-  todayLogs.push({time: stopTime, text: `หยุด — ${todo.title}`, id: Date.now(), isStop: true});
+  todayLogs.push({time: stopTime, text: `${currentLang==="en"?"Stop":"หยุด"} — ${todo.title}`, id: Date.now(), isStop: true});
   todayLogs.sort((a,b) => a.time.localeCompare(b.time));
   renderToday();
 }
@@ -1415,7 +1415,7 @@ const UI_TEXT = {
     // Coach
     'coach-locked':'🔒 COACH จะ unlock หลังบันทึกครบ 7 วัน',
     // Misc
-    'sign-out':'ออกจากระบบ',
+    'sign-out':'ออกจากระบบ','coach-title-th':'🎯 วิเคราะห์เป้าหมาย',
   },
   en: {
     'tab-log':'LOG','tab-todo':'PLAN','tab-dash':'DASH','tab-coach':'COACH',
@@ -1434,7 +1434,7 @@ const UI_TEXT = {
     'dash-mode-day':'Daily','dash-mode-month':'Monthly','dash-today':'Today',
     'planner-today':'Today','planner-add':'+ Add','planner-add-task':'+ Add Task',
     'coach-locked':'🔒 COACH unlocks after 7 days of logging',
-    'sign-out':'Sign Out',
+    'sign-out':'Sign Out','coach-title-en':'🎯 Goal Analysis',
   }
 };
 
@@ -1483,6 +1483,16 @@ function setLang(lang){
   apply('notif-btn','notif-btn-text');
   // Sign out
   const so=document.getElementById('sign-out-btn');if(so)so.textContent=T['sign-out'];
+  // Dash labels
+  apply('hours-label','dash-hours-label');
+  apply('cat-label','dash-cat-label');
+  apply('add-cat-btn','dash-add-cat');
+  // Coach
+  apply('coach-title', lang==='en'?'coach-title-en':'coach-title-th');
+  apply('coach-sub','coach-locked');
+  // Planner add button
+  const planAdd=document.getElementById('planner-add-btn');
+  if(planAdd) planAdd.textContent=T['planner-add-task'];
 
   // Update day names in planner dynamically on re-render
   renderTags();renderToday();renderPlanner();
