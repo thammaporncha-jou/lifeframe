@@ -402,8 +402,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- QUICK TASK MODAL -->
 <div id="quick-task-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div class="modal-box" style="max-width:400px">
-    <div class="modal-title">⚡ เพิ่มงาน shortcut</div>
-    <div class="modal-field"><label class="modal-label">ชื่องาน</label><input class="modal-input" id="qt-title" placeholder="เช่น: ออกกำลังกาย"></div>
+    <div class="modal-title">⚡ ADD TASK SHORTCUT</div>
+    <div class="modal-field"><label class="modal-label">TASK NAME</label><input class="modal-input" id="qt-title" placeholder="e.g. Exercise"></div>
     <div class="modal-field">
       <label class="modal-label">ขั้นตอน (ถ้ามี)</label>
       <div class="steps-editor" id="qt-steps-editor">
@@ -616,9 +616,8 @@ function renderCustomTags(){
   document.getElementById('custom-tags-sidebar').innerHTML=customTags.map((t,i)=>
     `<div class="ctag" onclick="quickLogFromSidebar('${t}')">${t}<span class="del" onclick="event.stopPropagation();removeCustomTag(${i})">✕</span></div>`
   ).join('');
-  document.querySelectorAll('.tag.custom').forEach(el=>el.remove());
-  const wrap=document.getElementById('all-tags');
-  customTags.forEach(t=>{const b=document.createElement('button');b.className='tag custom';b.textContent=t;b.onclick=()=>quickLog(t);wrap.appendChild(b);});
+  // Re-render all tags (default + custom) in log page
+  renderTags();
 }
 function getAutoEmoji(text){
   const t=text.toLowerCase();
@@ -681,6 +680,7 @@ function renderTags(){
     b.onclick=()=>quickLog(t);wrap.appendChild(b);
   });
 }
+
 async function startLog(){
   const inp=document.getElementById('log-input');
   const txt=inp.value.trim(); if(!txt) return;
@@ -1319,15 +1319,15 @@ function updateNpTimer() {
 
 // ── QUICK TASKS ──
 let quickTasks = [
-  {id:1, title:'ออกกำลังกาย', steps:[{text:'วิ่ง 30 นาที',done:false}], link:''},
-  {id:2, title:'อ่านหนังสือ', steps:[{text:'อ่าน 20 หน้า',done:false}], link:''},
+  {id:1, title:'🏃 Exercise', steps:[{text:'Squat x 20',done:false},{text:'Push-up x 15',done:false},{text:'Plank 1 min',done:false}], link:''},
+  {id:2, title:'📚 Reading', steps:[{text:'Read 20 pages',done:false}], link:''},
+  {id:3, title:'🧘 Meditation', steps:[{text:'Breathe 10 min',done:false}], link:''},
 ];
-let qtNextId = 3;
-
+let qtNextId = 4;
 function renderQuickTasks(){
   const el = document.getElementById('quick-tasks-sidebar'); if(!el) return;
   if(!quickTasks.length){
-    el.innerHTML='<div style="font-size:11px;color:var(--muted)">— ยังไม่มี shortcut —</div>';
+    el.innerHTML='<div style="font-size:11px;color:var(--muted)">— No shortcuts yet —</div>';
     return;
   }
   el.innerHTML = quickTasks.map(qt=>`
