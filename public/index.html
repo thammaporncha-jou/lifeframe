@@ -321,7 +321,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <button id="dash-mode-month" onclick="setDashMode('month')" style="padding:5px 12px;font-size:11px;font-family:'Space Mono',monospace;border:none;background:transparent;color:var(--muted);cursor:pointer">รายเดือน</button>
         </div>
         <button class="row-btn" onclick="changePeriod(-1)">◀</button>
-        <button class="row-btn" onclick="changePeriod(0)" style="color:var(--accent)">วันนี้</button>
+        <button class="row-btn" id="dash-today-btn" onclick="changePeriod(0)" style="color:var(--accent)">Today</button>
         <button class="row-btn" onclick="changePeriod(1)">▶</button>
       </div>
     </div>
@@ -334,7 +334,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <canvas id="donut-canvas" width="180" height="180"></canvas>
           <div id="donut-center" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
             <div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)" id="donut-total">0</div>
-            <div style="font-size:10px;color:var(--muted)">บันทึก</div>
+            <div style="font-size:10px;color:var(--muted)" id="donut-sub-label">logs</div>
           </div>
         </div>
         <div id="legend" style="flex:1;display:flex;flex-direction:column;gap:7px;min-width:160px"></div>
