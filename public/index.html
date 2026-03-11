@@ -286,7 +286,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div id="gap-alert" style="display:none;font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace"></div>
       </div>
       <div class="timeline" id="timeline">
-        <div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:'Space Mono',monospace">— ยังไม่มี log วันนี้ —</div>
+        <div style="color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:'Space Mono',monospace">${currentLang==="en"?"— No logs today —":"— ยังไม่มี log วันนี้ —"}</div>
       </div>
     </div>
   </div>
@@ -662,18 +662,15 @@ const DEFAULT_TAGS = [
 
 function renderTags(){
   const wrap=document.getElementById('all-tags'); if(!wrap) return;
-  // Sleep button
-  const sleepLabel=sleepStart?(currentLang==="en"?'Wake Up':'ตื่น'):(currentLang==="en"?'Sleep':'นอน');
-  const sleepStyle=sleepStart?'background:rgba(0,191,255,.15);border-color:rgba(0,191,255,.4);color:#00bfff':'';
-  let html=`<button class="tag sleep-tag" id="sleep-btn" onclick="toggleSleep()" style="${sleepStyle}">😴 <span id="sleep-btn-label">${sleepLabel}</span></button>`;
-  // Other tags
+  const isSleeping=!!sleepStart;
+  const sleepLabel=isSleeping?(currentLang==="en"?'Wake Up \u2600\ufe0f':'\u0e15\u0e37\u0e48\u0e19 \u2600\ufe0f'):(currentLang==="en"?'\ud83d\ude34 Sleep':'\ud83d\ude34 \u0e19\u0e2d\u0e19');
+  const sleepStyle=isSleeping?'background:rgba(0,191,255,.15);border:1px solid rgba(0,191,255,.4);color:#00bfff':'';
+  let html=`<button class="tag sleep-tag" id="sleep-btn" onclick="toggleSleep()" style="${sleepStyle}">${sleepLabel}</button>`;
   DEFAULT_TAGS.slice(1).forEach(tag=>{
     const label=currentLang==="en"?tag.en:tag.th;
-    const logText=currentLang==="en"?tag.en:tag.th;
-    html+=`<button class="tag" onclick="quickLog('${logText}')">${label}</button>`;
+    html+=`<button class="tag" onclick="quickLog('${label}')">${label}</button>`;
   });
   wrap.innerHTML=html;
-  // Custom tags
   customTags.forEach(t=>{
     const b=document.createElement('button');
     b.className='tag custom';b.textContent=t;
@@ -1109,7 +1106,7 @@ function renderHoursSummary(year, month){
     .filter(e=>e.mins>0)
     .sort((a,b)=>b.mins-a.mins);
   if(!entries.length){
-    el.innerHTML="<div style='font-size:12px;color:var(--muted)'>— ยังไม่มีข้อมูล —</div>";
+    el.innerHTML="<div style='font-size:12px;color:var(--muted)'>${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>";
     return;
   }
   const maxMins=entries[0].mins;
@@ -1175,7 +1172,7 @@ function renderDash(){
 function renderDayHours(date){
   const el=document.getElementById('hours-summary-list'); if(!el) return;
   const logs=getDayLogs(date).filter(l=>!l.isStop);
-  if(!logs.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">— ยังไม่มีข้อมูล —</div>';return;}
+  if(!logs.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>';return;}
   const durBycat={};
   for(let i=0;i<logs.length;i++){
     const l=logs[i], next=logs[i+1];
@@ -1189,7 +1186,7 @@ function renderDayHours(date){
   const entries=categories.map(c=>({name:c.name,color:c.color,mins:durBycat[c.id]||0}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:durBycat['other']||0}])
     .filter(e=>e.mins>0).sort((a,b)=>b.mins-a.mins);
-  if(!entries.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">— ยังไม่มีข้อมูล —</div>';return;}
+  if(!entries.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>';return;}
   const maxMins=entries[0].mins;
   el.innerHTML=entries.map(e=>{
     const h=Math.floor(e.mins/60),m=e.mins%60;
@@ -1547,7 +1544,7 @@ function toggleSleep(){
     todayLogs.push(log);
     saveLog(log);
     todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
-    renderToday();
+    renderTags();renderToday();
   } else {
     // Wake up
     const wakeTime=getTime();
@@ -1568,9 +1565,7 @@ function toggleSleep(){
     if(sumText) sumText.textContent=currentLang==="en"?`Slept ${duration} (${sleepStart} - ${wakeTime})`:`นอน ${durationTh} (${sleepStart} - ${wakeTime})`;
     // Reset button
     sleepStart=null;
-    label.textContent=currentLang==="en"?'Sleep':'นอน';
-    btn.style.background='';btn.style.borderColor='';btn.style.color='';
-    renderToday();
+    renderTags();renderToday();
   }
 }
 
