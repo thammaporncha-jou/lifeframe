@@ -11,13 +11,22 @@
 <link rel="manifest" href="/manifest.json">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js">
 function setupTimelineSwipe(){
-  const el=document.getElementById('timeline');
-  if(!el) return;
-  let tx=0;
-  el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
-  el.addEventListener('touchend',e=>{
+  const card=document.getElementById('today-card');
+  if(!card) return;
+  let tx=0, ty=0, swiped=false;
+  card.addEventListener('touchstart',e=>{
+    tx=e.touches[0].clientX;
+    ty=e.touches[0].clientY;
+    swiped=false;
+  },{passive:true});
+  card.addEventListener('touchend',e=>{
+    if(swiped) return;
     const dx=e.changedTouches[0].clientX-tx;
-    if(Math.abs(dx)>50){ changeLogDate(dx<0?-1:1); }
+    const dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
+      swiped=true;
+      changeLogDate(dx<0?-1:1);
+    }
   },{passive:true});
 }
 </script>
@@ -805,8 +814,7 @@ function renderToday(){
   const lbl=document.getElementById('timeline-date-label');
   if(lbl) lbl.textContent=isToday?(currentLang==="en"?'Today Timeline':'timeline วันนี้'):formatThai(viewLogDate);
   // Next button disabled if today
-  const nextBtn=document.getElementById('log-next-btn');
-  if(nextBtn) nextBtn.disabled=isToday;
+  // next btn always enabled
   // Get logs for the viewed date
   const logsToShow = isToday ? todayLogs : allLogs.filter(l=>l.date===viewLogDate);
   if(!logsToShow.length){
