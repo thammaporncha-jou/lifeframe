@@ -956,12 +956,12 @@ async function saveTodo(){
 const PALETTE = ['#00ff88','#7c3aed','#ff6b35','#00bfff','#ff4466','#ffd700','#00e5cc','#ff69b4','#a78bfa','#34d399','#f87171','#fb923c'];
 
 let categories = [
-  {id:1, name:'Sleep',    name_th:'นอน',           color:'#4ade80', keywords:['นอน','หลับ','sleep','nap']},
-  {id:2, name:'Daily',    name_th:'กิจวัตร',        color:'#94a3b8', keywords:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว','eat','food','coffee','shower','breakfast','lunch','dinner']},
-  {id:3, name:'Work',     name_th:'ทำงาน',          color:'#22d3ee', keywords:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ','work','meeting','report','office','email']},
-  {id:4, name:'Exercise', name_th:'ออกกำลังกาย',   color:'#f472b6', keywords:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga','exercise','gym','run','workout','swim']},
-  {id:5, name:'Growth',   name_th:'พัฒนาตัวเอง',   color:'#facc15', keywords:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','คอร์ส','ฝึก','เรียน','read','learn','study','course','book']},
-  {id:6, name:'Phone',    name_th:'เล่นโทรศัพท์',  color:'#f87171', keywords:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก','instagram','facebook','twitter','phone','social','tiktok','youtube']},
+  {id:1, name:'Sleep',    name_th:'นอน',           color:'#4ade80', keywords:['นอน','หลับ','sleep','nap'],           keywords_th:['นอน','หลับ'],                                                               keywords_en:['sleep','nap']},
+  {id:2, name:'Daily',    name_th:'กิจวัตร',        color:'#94a3b8', keywords:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว','eat','food','coffee','shower','breakfast','lunch','dinner'],   keywords_th:['กิน','ข้าว','อาหาร','กาแฟ','ชา','ขนม','อาบน้ำ','แต่งตัว'],         keywords_en:['eat','food','coffee','shower','breakfast','lunch','dinner']},
+  {id:3, name:'Work',     name_th:'ทำงาน',          color:'#22d3ee', keywords:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ','work','meeting','report','office','email'],                                  keywords_th:['ทำงานประจำ','งาน','ประชุม','รายงาน','ออฟฟิศ'],                    keywords_en:['work','meeting','report','office','email']},
+  {id:4, name:'Exercise', name_th:'ออกกำลังกาย',   color:'#f472b6', keywords:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga','exercise','gym','run','workout','swim'],                                      keywords_th:['ออกกำลัง','วิ่ง','ยิม','กีฬา','ว่าย','yoga'],                     keywords_en:['exercise','gym','run','workout','swim','yoga']},
+  {id:5, name:'Growth',   name_th:'พัฒนาตัวเอง',   color:'#facc15', keywords:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','คอร์ส','ฝึก','เรียน','read','learn','study','course','book'],   keywords_th:['อ่านหนังสือ','อ่าน','เรียนภาษา','ภาษาอังกฤษ','สร้างแอป','คอร์ส','ฝึก','เรียน'], keywords_en:['read','learn','study','course','book']},
+  {id:6, name:'Phone',    name_th:'เล่นโทรศัพท์',  color:'#f87171', keywords:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก','instagram','facebook','twitter','phone','social','tiktok','youtube'],   keywords_th:['โทรศัพท์','เล่นโทรศัพท์','โซเชียล','ติ๊กต็อก'],                  keywords_en:['instagram','facebook','twitter','phone','social','tiktok','youtube']},
 ];
 let catNextId = 7;
 let dashYear = new Date().getFullYear();
@@ -1052,7 +1052,7 @@ function renderCatList(){
     <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
       <div style="width:12px;height:12px;border-radius:3px;background:${c.color};flex-shrink:0"></div>
       <div style="flex:1;font-size:13px">${currentLang==="en"?c.name:(c.name_th||c.name)}</div>
-      <div style="font-size:10px;color:var(--muted);flex:1">${c.keywords.join(', ')}</div>
+      <div style="font-size:10px;color:var(--muted);flex:1">${(currentLang==="en"?(c.keywords_en||c.keywords):(c.keywords_th||c.keywords)).join(', ')}</div>
       <button class="row-btn" onclick="deleteCat(${c.id})" style="color:var(--danger);border-color:rgba(255,68,102,.2)">✕</button>
     </div>`).join('');
 }
