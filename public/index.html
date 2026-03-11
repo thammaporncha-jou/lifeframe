@@ -1098,6 +1098,7 @@ function timeToMins(t){
   const [h,m]=t.split(':').map(Number);
   return h*60+(m||0);
 }
+function timeDiffMins(t1,t2){return timeToMins(t2)-timeToMins(t1);}
 
 function renderHoursSummary(year, month){
   const el=document.getElementById('hours-summary-list'); if(!el) return;
