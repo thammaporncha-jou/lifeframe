@@ -9,7 +9,18 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LIFEFRAME">
 <link rel="manifest" href="/manifest.json">
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js">
+function setupTimelineSwipe(){
+  const el=document.getElementById('timeline');
+  if(!el) return;
+  let tx=0;
+  el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+  el.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){ changeLogDate(dx<0?-1:1); }
+  },{passive:true});
+}
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 :root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
@@ -301,10 +312,14 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <!-- Timeline with gaps -->
     <div class="card" id="today-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-label" style="margin:0" id="timeline-date-label">timeline วันนี้</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="changeLogDate(-1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:2px 8px;font-size:14px;cursor:pointer;line-height:1.6">◀</button>
+          <div class="card-label" style="margin:0" id="timeline-date-label">timeline วันนี้</div>
+          <button id="log-next-btn" onclick="changeLogDate(1)" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:2px 8px;font-size:14px;cursor:pointer;line-height:1.6">▶</button>
+        </div>
         <div id="gap-alert" style="display:none;font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace"></div>
       </div>
-      <div class="timeline" id="timeline">
+      <div class="timeline" id="timeline" style="touch-action:pan-y">
         <div id="empty-log-msg" style="color:var(--muted);font-size:12px;text-align:center;padding:16px">— No logs today —</div>
       </div>
     </div>
