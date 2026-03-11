@@ -274,6 +274,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <button class="log-btn" id="start-log-btn" onclick="startLog()">▶ play</button>
       </div>
 
+      <!-- Mode toggle -->
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <button id="mode-now-btn" onclick="setLogMode('now')" style="font-family:'Space Mono',monospace;font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--accent);background:var(--accent);color:#000;cursor:pointer">ตอนนี้</button>
+        <button id="mode-back-btn" onclick="setLogMode('back')" style="font-family:'Space Mono',monospace;font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">ย้อนหลัง</button>
+      </div>
+
+      <!-- Backfill time inputs (hidden by default) -->
+      <div id="backfill-area" style="display:none;margin-top:10px;display:none;gap:10px;align-items:center">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">เริ่ม</span>
+          <input id="backfill-start" maxlength="5" placeholder="0800" style="width:64px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--fg);font-family:'Space Mono',monospace;font-size:13px;text-align:center" oninput="formatTimeInput(this)">
+        </div>
+        <span style="color:var(--muted)">—</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">จบ</span>
+          <input id="backfill-end" maxlength="5" placeholder="0900" style="width:64px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--fg);font-family:'Space Mono',monospace;font-size:13px;text-align:center" oninput="formatTimeInput(this)">
+        </div>
+      </div>
+
       <div class="all-tags" id="all-tags"></div>
     </div>
 
@@ -680,6 +699,31 @@ function renderTags(){
 async function startLog(){
   const inp=document.getElementById('log-input');
   const txt=inp.value.trim(); if(!txt) return;
+
+  if(logMode === 'back'){
+    // Backfill mode: save start + stop pair with custom times
+    const startVal = document.getElementById('backfill-start').value;
+    const endVal = document.getElementById('backfill-end').value;
+    const startTime = parseTimeInput(startVal);
+    const endTime = parseTimeInput(endVal);
+    if(!startTime){alert(currentLang==="en"?'Please enter start time':'กรุณาใส่เวลาเริ่ม');return;}
+    const startEntry={time:startTime,text:txt,id:Date.now(),active:false,date:todayStr()};
+    todayLogs.push(startEntry);
+    await saveLog(startEntry);
+    if(endTime){
+      const stopEntry={time:endTime,text:(currentLang==="en"?"Stop":"หยุด")+' — '+txt,id:Date.now()+1,isStop:true,date:todayStr()};
+      todayLogs.push(stopEntry);
+      await saveLog(stopEntry);
+    }
+    todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+    inp.value='';
+    document.getElementById('backfill-start').value='';
+    document.getElementById('backfill-end').value='';
+    renderToday();
+    return;
+  }
+
+  // Normal now mode
   const active=todayLogs.find(l=>l.active);
   if(active){
     active.active=false;
@@ -694,6 +738,37 @@ async function startLog(){
   inp.value=''; inp.focus(); renderToday();
 }
 function addLog(){startLog();}
+
+let logMode = 'now'; // 'now' or 'back'
+function setLogMode(mode){
+  logMode = mode;
+  const nowBtn = document.getElementById('mode-now-btn');
+  const backBtn = document.getElementById('mode-back-btn');
+  const backArea = document.getElementById('backfill-area');
+  if(mode === 'now'){
+    nowBtn.style.background='var(--accent)';nowBtn.style.color='#000';nowBtn.style.borderColor='var(--accent)';
+    backBtn.style.background='transparent';backBtn.style.color='var(--muted)';backBtn.style.borderColor='var(--border)';
+    backArea.style.display='none';
+  } else {
+    backBtn.style.background='var(--accent)';backBtn.style.color='#000';backBtn.style.borderColor='var(--accent)';
+    nowBtn.style.background='transparent';nowBtn.style.color='var(--muted)';nowBtn.style.borderColor='var(--border)';
+    backArea.style.display='flex';
+  }
+}
+function formatTimeInput(inp){
+  let v = inp.value.replace(/[^0-9]/g,'');
+  if(v.length > 2) v = v.slice(0,2)+':'+v.slice(2,4);
+  inp.value = v;
+}
+function parseTimeInput(val){
+  // accepts 0800 or 08:00 → returns "08:00"
+  const clean = val.replace(/[^0-9]/g,'');
+  if(clean.length < 3) return null;
+  const h = clean.slice(0,2).padStart(2,'0');
+  const m = clean.slice(2,4).padStart(2,'0')||'00';
+  if(parseInt(h)>23||parseInt(m)>59) return null;
+  return h+':'+m;
+}
 async function stopCurrentLog(){
   const active=todayLogs.find(l=>l.active); if(!active) return;
   active.active=false;
