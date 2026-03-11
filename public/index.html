@@ -9,27 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LIFEFRAME">
 <link rel="manifest" href="/manifest.json">
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js">
-let _swipeSetup=false;
-function setupTimelineSwipe(){
-  if(_swipeSetup) return;
-  const card=document.getElementById('today-card');
-  if(!card) return;
-  _swipeSetup=true;
-  let tx=0, ty=0;
-  card.addEventListener('touchstart',e=>{
-    tx=e.touches[0].clientX;
-    ty=e.touches[0].clientY;
-  },{passive:true});
-  card.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-tx;
-    const dy=e.changedTouches[0].clientY-ty;
-    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*2){
-      changeLogDate(dx<0?-1:1);
-    }
-  },{passive:true});
-}
-</script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 :root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
@@ -1691,6 +1671,26 @@ function initApp(){
   renderQuickTasks();
   renderPlanner();
   renderToday();
+}
+
+let _swipeSetup=false;
+function setupTimelineSwipe(){
+  if(_swipeSetup) return;
+  const card=document.getElementById('today-card');
+  if(!card) return;
+  _swipeSetup=true;
+  let tx=0, ty=0;
+  card.addEventListener('touchstart',e=>{
+    tx=e.touches[0].clientX;
+    ty=e.touches[0].clientY;
+  },{passive:true});
+  card.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    const dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*2){
+      changeLogDate(dx<0?-1:1);
+    }
+  },{passive:true});
 }
 
 // Start
