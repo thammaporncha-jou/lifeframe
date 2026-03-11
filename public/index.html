@@ -1172,7 +1172,7 @@ function renderDash(){
 function renderDayHours(date){
   const el=document.getElementById('hours-summary-list'); if(!el) return;
   const logs=getDayLogs(date).filter(l=>!l.isStop);
-  if(!logs.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>';return;}
+  if(!logs.length){el.innerHTML="<div style='font-size:12px;color:var(--muted)'>"+(currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —")+"</div>";return;}
   const durBycat={};
   for(let i=0;i<logs.length;i++){
     const l=logs[i], next=logs[i+1];
@@ -1186,7 +1186,7 @@ function renderDayHours(date){
   const entries=categories.map(c=>({name:c.name,color:c.color,mins:durBycat[c.id]||0}))
     .concat([{name:currentLang==="en"?"Other":"อื่นๆ",color:'#333355',mins:durBycat['other']||0}])
     .filter(e=>e.mins>0).sort((a,b)=>b.mins-a.mins);
-  if(!entries.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>';return;}
+  if(!entries.length){el.innerHTML="<div style='font-size:12px;color:var(--muted)'>"+(currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —")+"</div>";return;}
   const maxMins=entries[0].mins;
   el.innerHTML=entries.map(e=>{
     const h=Math.floor(e.mins/60),m=e.mins%60;
