@@ -761,7 +761,7 @@ function renderPlanner(){
       <div class="day-header">
         <div class="day-name" style="color:${isToday?'var(--accent)':isPast?'var(--muted)':'var(--text)'}">${dayLabel}</div>
         <div class="day-sub">${formatThai(date)}</div>
-        `${isToday?'<span class="day-badge today">'+(currentLang==="en"?"TODAY":"วันนี้")+'</span>':''}` 
+        (isToday?'<span class="day-badge today">'+(currentLang==="en"?"TODAY":"วันนี้")+'</span>':'')+
         ${isPast&&items.length?'<span class="day-badge past">ค้าง</span>':''}
         <span class="day-count">${done}/${items.length}</span>
         <button class="day-add" id="day-add-btn" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
@@ -786,8 +786,8 @@ function renderPlanner(){
                 ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
-              `${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==="en"?"→Today":"→วันนี้"}</button>`:''}`
-              `${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==="en"?"→Next":"→วัน"}</button>`:''}`
+              (isPast?'<button class="row-btn" onclick="moveCard('+todo.id+',\''+today+'\')">'+(currentLang==="en"?"→Today":"→วันนี้")+'</button>':'') +
+              (!isPast?'<button class="row-btn" onclick="moveCard('+todo.id+',\''+addDays(date,1)+'\')">'+(currentLang==="en"?"→Next":"→วัน")+'</button>':'') +
               <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
             </div>
           </div>
