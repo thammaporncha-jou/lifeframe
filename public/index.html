@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LIFEFRAME">
 <link rel="manifest" href="/manifest.json">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
 :root{--bg:#080810;--surface:#10101c;--surface2:#16162a;--border:#1e1e38;--accent:#00ff88;--accent3:#7c3aed;--text:#e8e8f0;--muted:#4a4a6a;--danger:#ff4466;}
@@ -251,15 +251,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div id="quick-tasks-sidebar" style="display:flex;flex-direction:column;gap:5px"></div>
   </div>
   <div style="padding:16px;border-top:1px solid var(--border)">
-    <div class="quick-log-title">แจ้งเตือน</div>
+    <div class="quick-log-title" id="lbl-notif">แจ้งเตือน</div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="notif-status">ปิดอยู่</div>
     <select id="notif-interval" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;margin-bottom:8px">
-      <option value="30">ทุก 30 นาที</option>
-      <option value="60" selected>ทุก 1 ชั่วโมง</option>
-      <option value="120">ทุก 2 ชั่วโมง</option>
-      <option value="180">ทุก 3 ชั่วโมง</option>
+      <option value="30" id="lbl-notif-30">ทุก 30 นาที</option>
+      <option value="60" selected id="lbl-notif-60">ทุก 1 ชั่วโมง</option>
+      <option value="120" id="lbl-notif-120">ทุก 2 ชั่วโมง</option>
+      <option value="180" id="lbl-notif-180">ทุก 3 ชั่วโมง</option>
     </select>
-    <button id="notif-btn" onclick="toggleNotif()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer">เปิดแจ้งเตือน</button>
+    <button id="notif-btn" onclick="toggleNotif()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer" data-th="เปิดแจ้งเตือน" data-en="Enable Notifications">เปิดแจ้งเตือน</button>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px">
+    <button onclick="setLang('th')" id="lang-th-btn" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:8px;padding:7px;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:pointer">ไทย</button>
+    <button onclick="setLang('en')" id="lang-en-btn" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">ENG</button>
+    <button onclick="shareApp()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--accent);border-radius:8px;padding:7px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer">📤 Share</button>
   </div>
 </div>
 
@@ -329,16 +334,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <!-- DASH PAGE -->
 <div class="page" id="page-dash">
   <div class="std-page">
-    <!-- Month nav -->
+    <!-- Dash nav -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px">
       <div>
         <div style="font-size:18px;font-weight:700">Dashboard</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="dash-month-label">เดือนนี้</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="dash-period-label">เดือนนี้</div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="row-btn" onclick="changeMonth(-1)">◀</button>
-        <button class="row-btn" onclick="changeMonth(0)" style="color:var(--accent)">วันนี้</button>
-        <button class="row-btn" onclick="changeMonth(1)">▶</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <button id="dash-mode-day" onclick="setDashMode('day')" style="padding:5px 12px;font-size:11px;font-family:'Space Mono',monospace;border:none;background:var(--accent);color:#000;cursor:pointer">รายวัน</button>
+          <button id="dash-mode-month" onclick="setDashMode('month')" style="padding:5px 12px;font-size:11px;font-family:'Space Mono',monospace;border:none;background:transparent;color:var(--muted);cursor:pointer">รายเดือน</button>
+        </div>
+        <button class="row-btn" onclick="changePeriod(-1)">◀</button>
+        <button class="row-btn" onclick="changePeriod(0)" style="color:var(--accent)">วันนี้</button>
+        <button class="row-btn" onclick="changePeriod(1)">▶</button>
       </div>
     </div>
 
@@ -476,7 +485,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 // ── SUPABASE ──
 const SUPA_URL = 'https://xvmwwolzzjwvtonbgddt.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2bXd3b2x6emp3dnRvbmJnZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTc0ODAsImV4cCI6MjA4ODczMzQ4MH0.zu8RCuJmQym918EWPmAn-qFbHwmhCxWiZX2kscDdqNY';
-const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+const supa = (window.supabase || supabase).createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 
 async function initSupabase(){
@@ -544,7 +553,7 @@ async function saveLog(log){
   if(data) log.id=data.id;
 }
 
-async function saveTodo(todo){
+async function saveTodoToDB(todo){
   if(!currentUser) return;
   const {data}=await supa.from('todos').insert({
     user_id:currentUser.id,title:todo.title,
@@ -553,7 +562,7 @@ async function saveTodo(todo){
   if(data) todo.id=data.id;
 }
 
-async function updateTodo(todo){
+async function updateTodoInDB(todo){
   if(!currentUser) return;
   await supa.from('todos').update({
     title:todo.title,steps:todo.steps,date:todo.date,link:todo.link||''
@@ -666,11 +675,23 @@ async function stopCurrentLog(){
 async function deleteLog(id){await deleteFromDB('logs',id);todayLogs=todayLogs.filter(l=>l.id!==id);renderToday();}
 function renderToday(){
   const tl=document.getElementById('timeline'); if(!tl) return;
-  if(!todayLogs.length){
-    tl.innerHTML="<div style='color:var(--muted);font-size:12px;text-align:center;padding:16px;font-family:Space Mono,monospace'>— ยังไม่มี log วันนี้ —</div>";
+  const today=todayStr();
+  const isToday=viewLogDate===today;
+  // Label
+  const lbl=document.getElementById('timeline-date-label');
+  if(lbl) lbl.textContent=isToday?(currentLang==='en'?'Today Timeline':'timeline วันนี้'):formatThai(viewLogDate);
+  // Next button disabled if today
+  const nextBtn=document.getElementById('log-next-btn');
+  if(nextBtn) nextBtn.disabled=isToday;
+  // Get logs for the viewed date
+  const logsToShow = isToday ? todayLogs : allLogs.filter(l=>l.date===viewLogDate);
+  if(!logsToShow.length){
+    tl.innerHTML="<div style='color:var(--muted);font-size:12px;text-align:center;padding:16px'>— ไม่มี log วันนี้ —</div>";
     return;
   }
-  tl.innerHTML = todayLogs.slice().reverse().map((l,i)=>{
+  const todayLogs_backup = todayLogs;
+  const useLogs = logsToShow.slice().sort((a,b)=>a.time.localeCompare(b.time));
+  tl.innerHTML = useLogs.slice().reverse().map((l,i)=>{
     const isLatest = i===0;
     const cat = !l.isStop&&typeof getCategoryForText!=='undefined' ? getCategoryForText(l.text) : null;
     const catName = cat ? cat.name : '';
@@ -857,13 +878,13 @@ function addEditStep(){
   if(inputs.length)inputs[inputs.length-1].focus();
 }
 function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');editingId=null;}
-function saveEdit(){
+async function saveEdit(){
   const t=todos.find(t=>t.id===editingId);if(!t)return;
   t.title=document.getElementById('edit-title-input').value.trim()||t.title;
   t.date=document.getElementById('edit-date-input').value||t.date;
   t.link=document.getElementById('edit-link-input').value.trim();
-  // steps already updated live
   t.steps=t.steps.filter(s=>s.text.trim());
+  await updateTodoInDB(t);
   closeEditModal();renderPlanner();
 }
 
@@ -886,12 +907,14 @@ function addStepInput(){
   ed.appendChild(d);d.querySelector('input').focus();
 }
 function removeStep(btn){btn.parentElement.remove();}
-function saveTodo(){
+async function saveTodo(){
   const title=document.getElementById('todo-title-input').value.trim();if(!title)return alert('ใส่ชื่องานด้วยนะครับ');
   const steps=[...document.querySelectorAll('#steps-editor .step-input')].map(i=>i.value.trim()).filter(Boolean).map(t=>({text:t,done:false}));
   const link=document.getElementById('todo-link-input').value.trim();
   const date=document.getElementById('todo-date-input').value||todayStr();
-  todos.push({id:Date.now(),title,steps,link,date});
+  const todo={id:Date.now(),title,steps,link,date};
+  todos.push(todo);
+  await saveTodoToDB(todo);
   renderBoard();closeTodoModal();
 }
 
@@ -909,6 +932,8 @@ let categories = [
 let catNextId = 7;
 let dashYear = new Date().getFullYear();
 let dashMonth = new Date().getMonth(); // 0-based
+let dashDay = new Date().toISOString().slice(0,10);
+let dashMode = 'day'; // 'day' or 'month'
 
 const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
 let allLogs = [];
@@ -1071,21 +1096,77 @@ function renderHoursSummary(year, month){
   }).join('');
 }
 
+function setDashMode(mode){
+  dashMode=mode;
+  document.getElementById('dash-mode-day').style.background=mode==='day'?'var(--accent)':'transparent';
+  document.getElementById('dash-mode-day').style.color=mode==='day'?'#000':'var(--muted)';
+  document.getElementById('dash-mode-month').style.background=mode==='month'?'var(--accent)':'transparent';
+  document.getElementById('dash-mode-month').style.color=mode==='month'?'#000':'var(--muted)';
+  renderDash();
+}
+
+function getDayLogs(date){
+  const live = date===todayStr() ? todayLogs.map(l=>({...l,date})) : [];
+  return [...allLogs.filter(l=>l.date===date), ...live];
+}
+
 function renderDash(){
-  const logs = getMonthLogs(dashYear, dashMonth);
-  const counts = getCounts(logs);
-  const total = logs.length;
-  const label = `${THAI_MONTHS[dashMonth]} ${dashYear+543}`;
-  document.getElementById('dash-month-label').textContent=label;
-  drawDonut(counts, total);
-  renderLegend(counts, total);
-  renderHoursSummary(dashYear, dashMonth);
+  let logs, label;
+  if(dashMode==='day'){
+    logs=getDayLogs(dashDay);
+    const d=new Date(dashDay+'T00:00:00');
+    const dayNames=['อา','จ','อ','พ','พฤ','ศ','ส'];
+    label=`${dayNames[d.getDay()]} ${formatThai(dashDay)}`;
+  } else {
+    logs=getMonthLogs(dashYear,dashMonth);
+    label=`${THAI_MONTHS[dashMonth]} ${dashYear+543}`;
+  }
+  const counts=getCounts(logs);
+  const total=logs.length;
+  document.getElementById('dash-period-label').textContent=label;
+  drawDonut(counts,total);
+  renderLegend(counts,total);
+  if(dashMode==='month') renderHoursSummary(dashYear,dashMonth);
+  else renderDayHours(dashDay);
   renderCatList();
 }
 
-function changeMonth(dir){
-  if(dir===0){dashYear=new Date().getFullYear();dashMonth=new Date().getMonth();}
-  else{
+function renderDayHours(date){
+  const el=document.getElementById('hours-summary-list'); if(!el) return;
+  const logs=getDayLogs(date).filter(l=>!l.isStop);
+  if(!logs.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">— ยังไม่มีข้อมูล —</div>';return;}
+  const durBycat={};
+  for(let i=0;i<logs.length;i++){
+    const l=logs[i], next=logs[i+1];
+    if(!next) continue;
+    const diff=timeDiffMins(l.time,next.time);
+    if(diff<=0||diff>480) continue;
+    const cat=getCategoryForText(l.text);
+    const key=cat?cat.id:'other';
+    durBycat[key]=(durBycat[key]||0)+diff;
+  }
+  const entries=categories.map(c=>({name:c.name,color:c.color,mins:durBycat[c.id]||0}))
+    .concat([{name:'อื่นๆ',color:'#333355',mins:durBycat['other']||0}])
+    .filter(e=>e.mins>0).sort((a,b)=>b.mins-a.mins);
+  if(!entries.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">— ยังไม่มีข้อมูล —</div>';return;}
+  const maxMins=entries[0].mins;
+  el.innerHTML=entries.map(e=>{
+    const h=Math.floor(e.mins/60),m=e.mins%60;
+    const label=h>0?(m>0?`${h} ชม. ${m} น.`:`${h} ชม.`):`${m} น.`;
+    const pct=Math.round(e.mins/maxMins*100);
+    return `<div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:2px;background:${e.color}"></div><span style="font-size:12px">${e.name}</span></div>
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--accent)">${label}</span></div>
+      <div style="height:4px;background:var(--surface2);border-radius:2px"><div style="height:4px;background:${e.color};border-radius:2px;width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+
+function changePeriod(dir){
+  if(dir===0){
+    dashDay=todayStr();dashYear=new Date().getFullYear();dashMonth=new Date().getMonth();
+  } else if(dashMode==='day'){
+    dashDay=addDays(dashDay,dir);
+  } else {
     dashMonth+=dir;
     if(dashMonth>11){dashMonth=0;dashYear++;}
     if(dashMonth<0){dashMonth=11;dashYear--;}
@@ -1219,14 +1300,14 @@ function renderQuickTasks(){
     </div>`).join('');
 }
 
-function addQuickTaskToday(id){
+async function addQuickTaskToday(id){
   const qt = quickTasks.find(q=>q.id===id); if(!qt) return;
   const today = todayStr();
-  // Deep copy steps
   const steps = qt.steps.map(s=>({text:s.text, done:false}));
-  todos.push({id:Date.now(), title:qt.title, steps, link:qt.link, date:today});
+  const todo={id:Date.now(), title:qt.title, steps, link:qt.link, date:today};
+  todos.push(todo);
+  await saveTodoToDB(todo);
   renderPlanner();
-  // Flash feedback
   showPage('todo');
   closeSidebar();
 }
@@ -1262,6 +1343,194 @@ function saveQuickTask(){
   quickTasks.push({id:qtNextId++, title, steps, link});
   renderQuickTasks();
   closeQuickTaskModal();
+}
+
+
+// ── LANGUAGE ──
+let currentLang = 'th';
+const LANG = {
+  th: {
+    'log-title':'บันทึกกิจกรรม','log-sub':'ทำอะไรอยู่?','log-placeholder':'เช่น: กินข้าว, ทำงาน...',
+    'play-btn':'▶ play','stop-btn':'■ stop','timeline-label':'timeline',
+    'today-btn':'วันนี้','sleep-btn':'นอน','wake-btn':'ตื่น',
+    'notif-label':'แจ้งเตือน','notif-on':'เปิดแจ้งเตือน','notif-off':'ปิดแจ้งเตือน',
+    'share-label':'แชร์แอป','lang-label':'ภาษา',
+    'dash-day':'รายวัน','dash-month':'รายเดือน',
+  },
+  en: {
+    'log-title':'Log Activity','log-sub':'What are you doing?','log-placeholder':'e.g. eat, work, sleep...',
+    'play-btn':'▶ play','stop-btn':'■ stop','timeline-label':'timeline',
+    'today-btn':'Today','sleep-btn':'Sleep','wake-btn':'Wake Up',
+    'notif-label':'Reminders','notif-on':'Enable Notifications','notif-off':'Disable Notifications',
+    'share-label':'Share App','lang-label':'Language',
+    'dash-day':'Daily','dash-month':'Monthly',
+  }
+};
+
+// Translation map for all UI elements
+const UI_TEXT = {
+  th: {
+    // Nav
+    'tab-log':'LOG','tab-todo':'PLAN','tab-dash':'DASH','tab-coach':'COACH',
+    // Sidebar
+    'nav-log':'📝  บันทึกกิจกรรม','nav-todo':'✅  Daily Planner','nav-dash':'📊  Dashboard','nav-coach':'🎯  Coach',
+    'lbl-quick-log':'LOG ที่ใช้บ่อย','lbl-quick-task':'งานที่ทำบ่อย','lbl-notif':'แจ้งเตือน',
+    'notif-btn-text':'เปิดแจ้งเตือน',
+    'notif-30':'ทุก 30 นาที','notif-60':'ทุก 1 ชั่วโมง','notif-120':'ทุก 2 ชั่วโมง','notif-180':'ทุก 3 ชั่วโมง',
+    // Log page
+    'log-card-label':'บันทึกกิจกรรม','log-title':'ทำอะไรอยู่?',
+    'log-placeholder':'เช่น: กินข้าว, ทำงาน...','play-btn':'▶ play',
+    'tag-sleep':'😴 นอน','tag-eat':'🍚 กินข้าว','tag-exercise':'🏃 ออกกำลังกาย',
+    'tag-read':'📚 อ่านหนังสือ','tag-english':'🗣 เรียนภาษาอังกฤษ','tag-phone':'📱 เล่นโทรศัพท์',
+    'timeline-today':'timeline วันนี้','today-btn':'วันนี้',
+    // Dashboard
+    'dash-donut-label':'สัดส่วนกิจกรรม','dash-hours-label':'เวลารวมแต่ละหมวด',
+    'dash-cat-label':'จัดการหมวดหมู่','dash-add-cat':'+ เพิ่มหมวดหมู่',
+    'dash-mode-day':'รายวัน','dash-mode-month':'รายเดือน','dash-today':'วันนี้',
+    // Planner
+    'planner-today':'วันนี้','planner-add':'+ เพิ่ม','planner-add-task':'+ เพิ่มงาน',
+    // Coach
+    'coach-locked':'🔒 COACH จะ unlock หลังบันทึกครบ 7 วัน',
+    // Misc
+    'sign-out':'ออกจากระบบ',
+  },
+  en: {
+    'tab-log':'LOG','tab-todo':'PLAN','tab-dash':'DASH','tab-coach':'COACH',
+    'nav-log':'📝  Log Activity','nav-todo':'✅  Daily Planner','nav-dash':'📊  Dashboard','nav-coach':'🎯  Coach',
+    'lbl-quick-log':'Quick Log','lbl-quick-task':'Task Shortcuts','lbl-notif':'Reminders',
+    'notif-btn-text':'Enable Notifications',
+    'notif-30':'Every 30 min','notif-60':'Every 1 hour','notif-120':'Every 2 hours','notif-180':'Every 3 hours',
+    'log-card-label':'Log Activity','log-title':'What are you doing?',
+    'log-placeholder':'e.g. eat, work, sleep...','play-btn':'▶ play',
+    'tag-sleep':'😴 Sleep','tag-eat':'🍚 Eat','tag-exercise':'🏃 Exercise',
+    'tag-read':'📚 Read','tag-english':'🗣 Learn English','tag-phone':'📱 Phone',
+    'timeline-today':'Today's Timeline','today-btn':'Today',
+    'dash-donut-label':'Activity Breakdown','dash-hours-label':'Hours by Category',
+    'dash-cat-label':'Manage Categories','dash-add-cat':'+ Add Category',
+    'dash-mode-day':'Daily','dash-mode-month':'Monthly','dash-today':'Today',
+    'planner-today':'Today','planner-add':'+ Add','planner-add-task':'+ Add Task',
+    'coach-locked':'🔒 COACH unlocks after 7 days of logging',
+    'sign-out':'Sign Out',
+  }
+};
+
+function setLang(lang){
+  currentLang=lang;
+  const T=UI_TEXT[lang];
+  // Sidebar lang buttons style
+  document.getElementById('lang-th-btn').style.background=lang==='th'?'var(--accent)':'var(--surface2)';
+  document.getElementById('lang-th-btn').style.color=lang==='th'?'#000':'var(--muted)';
+  document.getElementById('lang-th-btn').style.border=lang==='th'?'none':'1px solid var(--border)';
+  document.getElementById('lang-en-btn').style.background=lang==='en'?'var(--accent)':'var(--surface2)';
+  document.getElementById('lang-en-btn').style.color=lang==='en'?'#000':'var(--muted)';
+  document.getElementById('lang-en-btn').style.border=lang==='en'?'none':'1px solid var(--border)';
+
+  // Apply all translations
+  const apply=(id,key)=>{const el=document.getElementById(id);if(el&&T[key])el.textContent=T[key];};
+  const applyPH=(id,key)=>{const el=document.getElementById(id);if(el&&T[key])el.placeholder=T[key];};
+
+  // Nav tabs
+  apply('tab-log','tab-log');apply('tab-todo','tab-todo');
+  apply('tab-dash','tab-dash');apply('tab-coach','tab-coach');
+  // Sidebar nav
+  apply('nav-log','nav-log');apply('nav-todo','nav-todo');
+  apply('nav-dash','nav-dash');apply('nav-coach','nav-coach');
+  // Log page
+  applyPH('log-input','log-placeholder');
+  apply('start-log-btn','play-btn');
+  apply('sleep-btn-label',sleepStart?'tag-sleep':'tag-sleep');
+  // Tags
+  const tags=[['tag-sleep-el','tag-sleep'],['tag-eat-el','tag-eat'],['tag-exercise-el','tag-exercise'],
+    ['tag-read-el','tag-read'],['tag-english-el','tag-english'],['tag-phone-el','tag-phone']];
+  // Dash
+  apply('dash-mode-day','dash-mode-day');apply('dash-mode-month','dash-mode-month');
+  // Notif
+  apply('notif-btn','notif-btn-text');
+  // Sign out
+  const so=document.getElementById('sign-out-btn');if(so)so.textContent=T['sign-out'];
+
+  // Re-render to update dynamic text
+  renderToday();renderPlanner();
+}
+
+// ── SHARE ──
+function shareApp(){
+  const url='https://lifeframe-git-main-thammaporncha-8952s-projects.vercel.app';
+  if(navigator.share){
+    navigator.share({title:'LIFEFRAME',text:'แอปติดตามชีวิต',url});
+  } else {
+    navigator.clipboard.writeText(url).then(()=>alert('คัดลอก link แล้วครับ!\n'+url));
+  }
+}
+
+// ── SLEEP TRACKER ──
+let sleepStart = null;
+
+function toggleSleep(){
+  const btn=document.getElementById('sleep-btn');
+  const label=document.getElementById('sleep-btn-label');
+  if(!sleepStart){
+    // Start sleep
+    sleepStart=getTime();
+    label.textContent=currentLang==='en'?'Wake Up':'ตื่น';
+    btn.style.background='rgba(0,191,255,.15)';
+    btn.style.borderColor='rgba(0,191,255,.4)';
+    btn.style.color='#00bfff';
+    const log={time:sleepStart,text:'😴 นอน',id:Date.now(),active:true};
+    todayLogs.push(log);
+    saveLog(log);
+    todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+    renderToday();
+  } else {
+    // Wake up
+    const wakeTime=getTime();
+    const sleepMins=timeDiffMins(sleepStart,wakeTime);
+    const h=Math.floor(sleepMins/60),m=sleepMins%60;
+    const duration=h>0?(m>0?`${h}h ${m}m`:`${h}h`):`${m}m`;
+    const durationTh=h>0?(m>0?`${h} ชม. ${m} น.`:`${h} ชม.`):`${m} น.`;
+    const activeLog=todayLogs.find(l=>l.active&&l.text.includes('นอน'));
+    if(activeLog) activeLog.active=false;
+    const stopLog={time:wakeTime,text:currentLang==='en'?`Wake up — slept ${duration}`:`ตื่น — นอน ${durationTh}`,id:Date.now(),isStop:true};
+    todayLogs.push(stopLog);
+    saveLog(stopLog);
+    todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
+    // Show summary
+    const sumEl=document.getElementById('sleep-summary');
+    const sumText=document.getElementById('sleep-summary-text');
+    if(sumEl) sumEl.style.display='block';
+    if(sumText) sumText.textContent=currentLang==='en'?`Slept ${duration} (${sleepStart} - ${wakeTime})`:`นอน ${durationTh} (${sleepStart} - ${wakeTime})`;
+    // Reset button
+    sleepStart=null;
+    label.textContent=currentLang==='en'?'Sleep':'นอน';
+    btn.style.background='';btn.style.borderColor='';btn.style.color='';
+    renderToday();
+  }
+}
+
+// ── LOG DATE NAV ──
+let viewLogDate = todayStr();
+
+function changeLogDate(dir){
+  if(dir===0){ viewLogDate=todayStr(); }
+  else { viewLogDate=addDays(viewLogDate,dir); }
+  renderToday();
+}
+
+// ── SUPABASE TODO SYNC ──
+async function saveTodoToDB(todo){
+  if(!currentUser) return;
+  const {data}=await supa.from('todos').insert({
+    user_id:currentUser.id,title:todo.title,
+    steps:todo.steps,date:todo.date,link:todo.link||''
+  }).select().single();
+  if(data) todo.id=data.id;
+}
+
+async function updateTodoInDB(todo){
+  if(!currentUser) return;
+  await supa.from('todos').update({
+    title:todo.title,steps:todo.steps,date:todo.date,link:todo.link||''
+  }).eq('id',todo.id);
 }
 
 // ── INIT ──
