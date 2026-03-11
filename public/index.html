@@ -795,7 +795,7 @@ function renderPlanner(){
             <div class="row-title">${todo.title}</div>
             <div class="row-actions">
               <button class="${activeTaskId===todo.id?'play-btn playing':'play-btn'}" onclick="playTask(${todo.id},'${todo.title.replace(/'/g,"\\'")}')">
-                ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
+                ${activeTaskId===todo.id?(currentLang==="en"?'⏸ pause':'⏸ หยุด'):(currentLang==="en"?'▶ play':'▶ เริ่ม')}
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
               ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==="en"?"→Today":"→วันนี้"}</button>`:''}
