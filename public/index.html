@@ -752,7 +752,7 @@ function renderPlanner(){
     const items = grouped[date]||[];
     if(isPast && !items.length) return '';
     const done = items.filter(t=>t.steps.length&&t.steps.every(s=>s.done)).length;
-    const dayLabel = isToday?(currentLang==="en"?"Today":"วันนี้"):isPast?`${dayOfWeek(date)} ${currentLang==="en"?"(past)":"(ที่ผ่านมา")}`:dayOfWeek(date);
+    const dayLabel = isToday?(currentLang==="en"?"Today":"วันนี้"):isPast?`${dayOfWeek(date)} ${currentLang==="en"?"(past)":"(ที่ผ่านมา)"}`:dayOfWeek(date);
 
     return `<div class="day-section ${isPast?'past-section':''}" id="day-${date}"
         ondragover="onDayDragOver(event,'${date}')"
