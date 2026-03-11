@@ -284,8 +284,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="page active" id="page-log">
   <div class="std-page">
     <div class="card">
-      <div class="card-label">บันทึกกิจกรรม</div>
-      <div class="section-title">ทำอะไรอยู่?</div>
+      <div class="card-label" id="log-card-label">บันทึกกิจกรรม</div>
+      <div class="section-title" id="log-section-title">ทำอะไรอยู่?</div>
       <div class="section-sub">พิมพ์สั้นๆ หรือกด tag • ย้อนเวลาได้</div>
       <div class="log-area" style="margin-top:12px">
         <input class="log-input" id="log-input" placeholder="เช่น: กินข้าว, ทำงาน..." onkeydown="if(event.key==='Enter')startLog()">
@@ -307,7 +307,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <!-- Timeline with gaps -->
     <div class="card" id="today-card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-label" style="margin:0">timeline วันนี้</div>
+        <div class="card-label" style="margin:0" id="timeline-date-label">timeline วันนี้</div>
         <div id="gap-alert" style="display:none;font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace"></div>
       </div>
       <div class="timeline" id="timeline">
@@ -1352,7 +1352,7 @@ const LANG = {
   th: {
     'log-title':'บันทึกกิจกรรม','log-sub':'ทำอะไรอยู่?','log-placeholder':'เช่น: กินข้าว, ทำงาน...',
     'play-btn':'▶ play','stop-btn':'■ stop','timeline-label':'timeline',
-    'today-btn':'วันนี้','sleep-btn':'นอน','wake-btn':'ตื่น',
+    'today-btn':'วันนี้','sleep-btn':'นอน','wake-btn':'ตื่น','sleep-btn':'นอน',
     'notif-label':'แจ้งเตือน','notif-on':'เปิดแจ้งเตือน','notif-off':'ปิดแจ้งเตือน',
     'share-label':'แชร์แอป','lang-label':'ภาษา',
     'dash-day':'รายวัน','dash-month':'รายเดือน',
@@ -1360,7 +1360,7 @@ const LANG = {
   en: {
     'log-title':'Log Activity','log-sub':'What are you doing?','log-placeholder':'e.g. eat, work, sleep...',
     'play-btn':'▶ play','stop-btn':'■ stop','timeline-label':'timeline',
-    'today-btn':'Today','sleep-btn':'Sleep','wake-btn':'Wake Up',
+    'today-btn':'Today','sleep-btn':'Sleep','wake-btn':'Wake Up','sleep-btn':'Sleep',
     'notif-label':'Reminders','notif-on':'Enable Notifications','notif-off':'Disable Notifications',
     'share-label':'Share App','lang-label':'Language',
     'dash-day':'Daily','dash-month':'Monthly',
@@ -1425,23 +1425,33 @@ function setLang(lang){
   document.getElementById('lang-en-btn').style.color=lang==='en'?'#000':'var(--muted)';
   document.getElementById('lang-en-btn').style.border=lang==='en'?'none':'1px solid var(--border)';
 
-  // Apply all translations
   const apply=(id,key)=>{const el=document.getElementById(id);if(el&&T[key])el.textContent=T[key];};
   const applyPH=(id,key)=>{const el=document.getElementById(id);if(el&&T[key])el.placeholder=T[key];};
+  const applySpan=(id,key)=>{const el=document.getElementById(id);if(el&&T[key])el.textContent=T[key];};
 
   // Nav tabs
   apply('tab-log','tab-log');apply('tab-todo','tab-todo');
   apply('tab-dash','tab-dash');apply('tab-coach','tab-coach');
-  // Sidebar nav
+  // Sidebar nav items
   apply('nav-log','nav-log');apply('nav-todo','nav-todo');
-  apply('nav-dash','nav-dash');apply('nav-coach','nav-coach');
+  apply('nav-dash','nav-dash');
   // Log page
+  apply('log-card-label','log-card-label');
+  apply('log-section-title','log-title');
   applyPH('log-input','log-placeholder');
   apply('start-log-btn','play-btn');
-  apply('sleep-btn-label',sleepStart?'tag-sleep':'tag-sleep');
+  apply('sleep-btn-label',sleepStart?'wake-btn':'sleep-btn');
   // Tags
-  const tags=[['tag-sleep-el','tag-sleep'],['tag-eat-el','tag-eat'],['tag-exercise-el','tag-exercise'],
-    ['tag-read-el','tag-read'],['tag-english-el','tag-english'],['tag-phone-el','tag-phone']];
+  applySpan('tag-eat-txt', lang==='en'?'tag-eat':'tag-eat');
+  applySpan('tag-exercise-txt', lang==='en'?'tag-exercise':'tag-exercise');
+  applySpan('tag-read-txt', lang==='en'?'tag-read':'tag-read');
+  applySpan('tag-english-txt', lang==='en'?'tag-english':'tag-english');
+  applySpan('tag-phone-txt', lang==='en'?'tag-phone':'tag-phone');
+  // Use correct text from T
+  ['eat','exercise','read','english','phone'].forEach(k=>{
+    const el=document.getElementById('tag-'+k+'-txt');
+    if(el) el.textContent=T['tag-'+k].replace(/^[^ ]+ /,'');
+  });
   // Dash
   apply('dash-mode-day','dash-mode-day');apply('dash-mode-month','dash-mode-month');
   // Notif
@@ -1449,7 +1459,6 @@ function setLang(lang){
   // Sign out
   const so=document.getElementById('sign-out-btn');if(so)so.textContent=T['sign-out'];
 
-  // Re-render to update dynamic text
   renderToday();renderPlanner();
 }
 
