@@ -650,13 +650,13 @@ const DEFAULT_TAGS = [
 function renderTags(){
   const wrap=document.getElementById('all-tags'); if(!wrap) return;
   // Sleep button
-  const sleepLabel=sleepStart?(currentLang==='en'?'Wake Up':'ตื่น'):(currentLang==='en'?'Sleep':'นอน');
+  const sleepLabel=sleepStart?(currentLang==="en"?'Wake Up':'ตื่น'):(currentLang==="en"?'Sleep':'นอน');
   const sleepStyle=sleepStart?'background:rgba(0,191,255,.15);border-color:rgba(0,191,255,.4);color:#00bfff':'';
   let html=`<button class="tag sleep-tag" id="sleep-btn" onclick="toggleSleep()" style="${sleepStyle}">😴 <span id="sleep-btn-label">${sleepLabel}</span></button>`;
   // Other tags
   DEFAULT_TAGS.slice(1).forEach(tag=>{
-    const label=currentLang==='en'?tag.en:tag.th;
-    const logText=currentLang==='en'?tag.en:tag.th;
+    const label=currentLang==="en"?tag.en:tag.th;
+    const logText=currentLang==="en"?tag.en:tag.th;
     html+=`<button class="tag" onclick="quickLog('${logText}')">${label}</button>`;
   });
   wrap.innerHTML=html;
@@ -702,7 +702,7 @@ function renderToday(){
   const isToday=viewLogDate===today;
   // Label
   const lbl=document.getElementById('timeline-date-label');
-  if(lbl) lbl.textContent=isToday?(currentLang==='en'?'Today Timeline':'timeline วันนี้'):formatThai(viewLogDate);
+  if(lbl) lbl.textContent=isToday?(currentLang==="en"?'Today Timeline':'timeline วันนี้'):formatThai(viewLogDate);
   // Next button disabled if today
   const nextBtn=document.getElementById('log-next-btn');
   if(nextBtn) nextBtn.disabled=isToday;
@@ -761,7 +761,7 @@ function renderPlanner(){
       <div class="day-header">
         <div class="day-name" style="color:${isToday?'var(--accent)':isPast?'var(--muted)':'var(--text)'}">${dayLabel}</div>
         <div class="day-sub">${formatThai(date)}</div>
-        ${isToday?'<span class="day-badge today">${currentLang==='en'?'TODAY':'วันนี้'}</span>':''}
+        `${isToday?'<span class="day-badge today">'+(currentLang==="en"?"TODAY":"วันนี้")+'</span>':''}` 
         ${isPast&&items.length?'<span class="day-badge past">ค้าง</span>':''}
         <span class="day-count">${done}/${items.length}</span>
         <button class="day-add" id="day-add-btn" onclick="openTodoModal('${date}')">+ เพิ่ม</button>
@@ -786,8 +786,8 @@ function renderPlanner(){
                 ${activeTaskId===todo.id?'⏸ pause':'▶ play'}
               </button>
               <button class="row-btn" onclick="openEditModal(${todo.id})">✎</button>
-              ${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==='en'?'→Today':'→วันนี้'}</button>`:''}
-              ${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==='en'?'→Next':'→วัน'}</button>`:''}
+              `${isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${today}')">${currentLang==="en"?"→Today":"→วันนี้"}</button>`:''}`
+              `${!isPast?`<button class="row-btn" onclick="moveCard(${todo.id},'${addDays(date,1)}')">${currentLang==="en"?"→Next":"→วัน"}</button>`:''}`
               <button class="row-btn del" onclick="deleteTodo(${todo.id})">✕</button>
             </div>
           </div>
@@ -1507,7 +1507,7 @@ function toggleSleep(){
   if(!sleepStart){
     // Start sleep
     sleepStart=getTime();
-    label.textContent=currentLang==='en'?'Wake Up':'ตื่น';
+    label.textContent=currentLang==="en"?'Wake Up':'ตื่น';
     btn.style.background='rgba(0,191,255,.15)';
     btn.style.borderColor='rgba(0,191,255,.4)';
     btn.style.color='#00bfff';
@@ -1525,7 +1525,7 @@ function toggleSleep(){
     const durationTh=h>0?(m>0?`${h} ชม. ${m} น.`:`${h} ชม.`):`${m} น.`;
     const activeLog=todayLogs.find(l=>l.active&&l.text.includes('นอน'));
     if(activeLog) activeLog.active=false;
-    const stopLog={time:wakeTime,text:currentLang==='en'?`Wake up — slept ${duration}`:`ตื่น — นอน ${durationTh}`,id:Date.now(),isStop:true};
+    const stopLog={time:wakeTime,text:currentLang==="en"?`Wake up — slept ${duration}`:`ตื่น — นอน ${durationTh}`,id:Date.now(),isStop:true};
     todayLogs.push(stopLog);
     saveLog(stopLog);
     todayLogs.sort((a,b)=>a.time.localeCompare(b.time));
@@ -1533,10 +1533,10 @@ function toggleSleep(){
     const sumEl=document.getElementById('sleep-summary');
     const sumText=document.getElementById('sleep-summary-text');
     if(sumEl) sumEl.style.display='block';
-    if(sumText) sumText.textContent=currentLang==='en'?`Slept ${duration} (${sleepStart} - ${wakeTime})`:`นอน ${durationTh} (${sleepStart} - ${wakeTime})`;
+    if(sumText) sumText.textContent=currentLang==="en"?`Slept ${duration} (${sleepStart} - ${wakeTime})`:`นอน ${durationTh} (${sleepStart} - ${wakeTime})`;
     // Reset button
     sleepStart=null;
-    label.textContent=currentLang==='en'?'Sleep':'นอน';
+    label.textContent=currentLang==="en"?'Sleep':'นอน';
     btn.style.background='';btn.style.borderColor='';btn.style.color='';
     renderToday();
   }
