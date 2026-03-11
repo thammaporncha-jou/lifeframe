@@ -1106,7 +1106,7 @@ function renderHoursSummary(year, month){
     .filter(e=>e.mins>0)
     .sort((a,b)=>b.mins-a.mins);
   if(!entries.length){
-    el.innerHTML="<div style='font-size:12px;color:var(--muted)'>${currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —"}</div>";
+    el.innerHTML="<div style='font-size:12px;color:var(--muted)'>"+(currentLang==="en"?"— No data —":"— ยังไม่มีข้อมูล —")+"</div>";
     return;
   }
   const maxMins=entries[0].mins;
