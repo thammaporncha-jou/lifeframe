@@ -10,21 +10,21 @@
 <meta name="apple-mobile-web-app-title" content="LIFEFRAME">
 <link rel="manifest" href="/manifest.json">
 <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js">
+let _swipeSetup=false;
 function setupTimelineSwipe(){
+  if(_swipeSetup) return;
   const card=document.getElementById('today-card');
   if(!card) return;
-  let tx=0, ty=0, swiped=false;
+  _swipeSetup=true;
+  let tx=0, ty=0;
   card.addEventListener('touchstart',e=>{
     tx=e.touches[0].clientX;
     ty=e.touches[0].clientY;
-    swiped=false;
   },{passive:true});
   card.addEventListener('touchend',e=>{
-    if(swiped) return;
     const dx=e.changedTouches[0].clientX-tx;
     const dy=e.changedTouches[0].clientY-ty;
-    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
-      swiped=true;
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*2){
       changeLogDate(dx<0?-1:1);
     }
   },{passive:true});
@@ -1694,7 +1694,7 @@ function initApp(){
 }
 
 // Start
-window.addEventListener('load', ()=> initSupabase());
+window.addEventListener('load', ()=>{ initSupabase(); setTimeout(setupTimelineSwipe,500); });
 
 </script>
 </div><!-- /app -->
