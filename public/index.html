@@ -297,7 +297,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="planner-wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 8px">
       <div>
-        <div style="font-size:18px;font-weight:700">Daily Planner</div>
+        <div style="font-size:18px;font-weight:700" id="planner-heading">Daily Planner</div>
         
       </div>
       <button class="add-todo-btn" id="planner-add-btn" onclick="openTodoModal()">+ เพิ่มงาน</button>
@@ -312,7 +312,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <!-- Dash nav -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px">
       <div>
-        <div style="font-size:18px;font-weight:700">Dashboard</div>
+        <div style="font-size:18px;font-weight:700" id="dash-heading">Dashboard</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px" id="dash-period-label">เดือนนี้</div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
@@ -1430,6 +1430,7 @@ const UI_TEXT = {
     'dash-cat-label':'จัดการหมวดหมู่','dash-add-cat':'+ เพิ่มหมวดหมู่',
     'dash-mode-day':'รายวัน','dash-mode-month':'รายเดือน','dash-today':'วันนี้',
     // Planner
+    'planner-heading':'แผนประจำวัน','dash-heading':'แดชบอร์ด',
     'planner-today':'วันนี้','planner-add':'+ เพิ่ม','planner-add-task':'+ เพิ่มงาน',
     // Coach
     'coach-locked':'🔒 COACH จะ unlock หลังบันทึกครบ 7 วัน',
@@ -1451,6 +1452,7 @@ const UI_TEXT = {
     'dash-donut-label':'Activity Breakdown','dash-hours-label':'Hours by Category',
     'dash-cat-label':'Manage Categories','dash-add-cat':'+ Add Category',
     'dash-mode-day':'Daily','dash-mode-month':'Monthly','dash-today':'Today',
+    'planner-heading':'Daily Planner','dash-heading':'Dashboard',
     'planner-today':'Today','planner-add':'+ Add','planner-add-task':'+ Add Task',
     'coach-locked':'🔒 COACH unlocks after 7 days of logging',
     'sign-out':'Sign Out','coach-title-en':'🎯 Goal Analysis','edit-name-en':'✎ Edit name',
@@ -1507,6 +1509,8 @@ function setLang(lang){
   // Dash labels
   apply('hours-label','dash-hours-label');
   apply('donut-label','dash-donut-label');
+  apply('planner-heading','planner-heading');
+  apply('dash-heading','dash-heading');
   apply('cat-label','dash-cat-label');
   apply('add-cat-btn','dash-add-cat');
   // Coach
